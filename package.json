@@ -5,7 +5,8 @@
     "author": "Hoon Kim",
     "scripts": {
         "test": "NODE_ENV=test jest --verbose --coverage && eslint '*/**/*.{js,ts}'",
-        "start": "ts-node-dev -r dotenv/config src/index.ts",
+        "start": "ts-node -r dotenv/config src/index.ts",
+        "dev": "ts-node-dev -r dotenv/config src/index.ts",
         "lint": "eslint '*/**/*.{js,ts}' --quiet --fix"
     },
     "keywords": [
