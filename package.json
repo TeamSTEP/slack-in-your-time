@@ -5,7 +5,8 @@
     "author": "Hoon Kim",
     "scripts": {
         "test": "NODE_ENV=test jest --verbose --coverage && eslint '*/**/*.{js,ts}'",
-        "start": "ts-node -r dotenv/config src/index.ts",
+        "start": "yarn build && NODE_ENV=production node -r dotenv/config ./dist/index.js",
+        "build": "rimraf ./dist && tsc --project tsconfig.json",
         "dev": "ts-node-dev -r dotenv/config src/index.ts",
         "lint": "eslint '*/**/*.{js,ts}' --quiet --fix"
     },
@@ -32,6 +33,7 @@
         "sync-glitch-cli": "^2.0.1",
         "ts-jest": "^26.4.2",
         "ts-node-dev": "^1.0.0-pre.63",
+        "ts-node": "^8.6.2",
         "typescript": "^4.0.3"
     },
     "dependencies": {
@@ -40,7 +42,6 @@
         "lodash": "^4.17.20",
         "moment": "^2.29.0",
         "node": "^15.0.1",
-        "ts-node": "^8.6.2",
         "reflect-metadata": "^0.1.13"
     },
     "engines": {
