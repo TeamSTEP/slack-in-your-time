@@ -1,6 +1,6 @@
 import { App } from '@slack/bolt';
 
-export default function main() {
+export default async function main() {
     // Initializes your app with your bot token and signing secret
     const app = new App({
         token: process.env.SLACK_BOT_TOKEN,
@@ -9,8 +9,6 @@ export default function main() {
 
     // Listens to incoming messages that contain "hello"
     app.message('change time', async ({ message, say }) => {
-        // say() sends a message to the channel where the event was triggered
-        console.log('someone said ' + message.text);
         // say() sends a message to the channel where the event was triggered
         await say({
             blocks: [

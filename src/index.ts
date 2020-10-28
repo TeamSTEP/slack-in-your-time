@@ -1,6 +1,9 @@
 // entry point of the application. The actual app logic is inside the app.ts file
+import main from './app';
 
-const main = require('./app');
-require('dotenv').config();
-
-main();
+// the entry point for the server application
+(() => {
+    main().catch((e) => {
+        console.log(e);
+    });
+})();

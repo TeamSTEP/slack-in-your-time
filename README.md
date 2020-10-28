@@ -10,4 +10,5 @@ Before deploying this app to a server, please set up the environmental variables
 SLACK_SIGNING_SECRET=
 SLACK_BOT_TOKEN=
 PORT=3000
+NODE_ENV=development
 ```
