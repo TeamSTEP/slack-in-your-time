@@ -1,10 +1,48 @@
-import { App } from '@slack/bolt';
+import { App, LogLevel, Middleware, SlackEventMiddlewareArgs } from '@slack/bolt';
+import { Users, Conversations } from './models';
+import _ from 'lodash';
 
 export default async function main() {
     // Initializes your app with your bot token and signing secret
     const app = new App({
         token: process.env.SLACK_BOT_TOKEN,
         signingSecret: process.env.SLACK_SIGNING_SECRET,
+        logLevel: LogLevel.DEBUG,
+    });
+
+    const teamMemberList = (await app.client.users.list({
+        include_locale: true,
+        token: process.env.SLACK_BOT_TOKEN,
+    })) as Users.ListResponse;
+
+    const contextChannelMembers: Middleware<SlackEventMiddlewareArgs<'message'>> = async ({
+        payload,
+        context,
+        next,
+    }) => {
+        const { members } = (await app.client.conversations.members({
+            token: context.botToken,
+            channel: payload.channel,
+        })) as Conversations.MembersResponse;
+
+        const thisChanMembers = members.map((user) => {
+            // we know that the member ID is in the list
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            return _.find(teamMemberList.members, (i) => {
+                return i.id === user;
+            })!;
+        });
+
+        // Add user's timezone context
+        context.members = thisChanMembers;
+
+        // Pass control to the next middleware function
+        next && (await next());
+    };
+
+    app.message('echo debug', contextChannelMembers, async ({ context, say, body, message }) => {
+        console.log(JSON.stringify(teamMemberList));
+        await say(`Context:\n${JSON.stringify({ context, body, message })}`);
     });
 
     // Listens to incoming messages that contain "hello"
