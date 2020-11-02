@@ -1,6 +1,7 @@
 import * as chrono from 'chrono-node';
 import moment from 'moment-timezone';
 import _ from 'lodash';
+import { EventContext } from '../model';
 
 /**
  * A semantic wrapper for moment.js.
@@ -21,9 +22,10 @@ export const currentTimeInZone = (timezone: string) => {
  * @param message message string that contains a reference to time
  * @param senderContext message sender's time context which includes the send time and the timezone
  */
-export const messageRefTime = (message: string, senderContext: moment.Moment) => {
+export const parseTimeReference = (message: string, senderContext: moment.Moment) => {
     const senderTimezone = senderContext.zoneName();
     const parsedDate = chrono.casual.parse(message, senderContext.toDate());
+    if (!parsedDate || parsedDate.length < 1) return undefined;
 
     const timeContext = _.map(parsedDate, (date) => {
         const start = moment.tz(date.start.date(), senderTimezone);
@@ -31,10 +33,11 @@ export const messageRefTime = (message: string, senderContext: moment.Moment) =>
         const tz = senderTimezone;
 
         return {
+            sourceMsg: message,
             start,
             end,
             tz,
-        };
+        } as EventContext.LocalDateReference;
     });
 
     return timeContext;
