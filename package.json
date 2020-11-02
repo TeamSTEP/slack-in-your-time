@@ -9,7 +9,8 @@
         "build": "rimraf ./dist && tsc --project tsconfig.json",
         "dev": "NODE_ENV=development ts-node-dev -r dotenv/config src/index.ts",
         "lint": "eslint '*/**/*.{js,ts}' --quiet --fix",
-        "deploy": "yarn run build && ts-node-dev -r dotenv/config scripts/deploy.ts"
+        "deploy": "yarn run build && ts-node-dev -r dotenv/config scripts/deploy.ts",
+        "sandbox": "ts-node-dev -r dotenv/config scripts/sandbox.ts"
     },
     "keywords": [
         "slack-app"
@@ -42,8 +43,9 @@
         "@slack/bolt": "^2.4.1",
         "@slack/web-api": "^5.13.0",
         "axios": "^0.21.0",
+        "chrono-node": "^2.1.9",
         "lodash": "^4.17.20",
-        "moment": "^2.29.1",
+        "moment-timezone": "^0.5.31",
         "node": "^15.0.1",
         "reflect-metadata": "^0.1.13"
     },
@@ -62,5 +64,5 @@
     "jest": {
         "testEnvironment": "node"
     },
-    "private": false
+    "private": true
 }
