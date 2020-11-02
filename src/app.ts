@@ -1,6 +1,6 @@
-import { App, LogLevel, Middleware, SlackEventMiddlewareArgs } from '@slack/bolt';
-import { Users, Conversations } from './models';
+import { App, LogLevel } from '@slack/bolt';
 import _ from 'lodash';
+import * as Middleware from './middleware';
 
 export default async function main() {
     // Initializes your app with your bot token and signing secret
@@ -10,39 +10,23 @@ export default async function main() {
         logLevel: LogLevel.DEBUG,
     });
 
-    const teamMemberList = (await app.client.users.list({
-        include_locale: true,
-        token: process.env.SLACK_BOT_TOKEN,
-    })) as Users.ListResponse;
+    app.message('echo debug', Middleware.contextChannelMembers, async ({ context, say, body, message }) => {
+        console.log(JSON.stringify({ context, body, message }));
+        try {
+            await say(`Context:\n${JSON.stringify({ context, body, message })}`);
+        } catch (err) {
+            await say(`Looks like I encountered an error :(\n[error] ${err.message}`);
+        }
+    });
 
-    const contextChannelMembers: Middleware<SlackEventMiddlewareArgs<'message'>> = async ({
-        payload,
-        context,
-        next,
-    }) => {
-        const { members } = (await app.client.conversations.members({
-            token: context.botToken,
-            channel: payload.channel,
-        })) as Conversations.MembersResponse;
-
-        const thisChanMembers = members.map((user) => {
-            // we know that the member ID is in the list
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            return _.find(teamMemberList.members, (i) => {
-                return i.id === user;
-            })!;
-        });
-
-        // Add user's timezone context
-        context.members = thisChanMembers;
-
-        // Pass control to the next middleware function
-        next && (await next());
-    };
-
-    app.message('echo debug', contextChannelMembers, async ({ context, say, body, message }) => {
-        console.log(JSON.stringify(teamMemberList));
-        await say(`Context:\n${JSON.stringify({ context, body, message })}`);
+    // listen to every messages that starts with a whole word
+    app.message(RegExp('^w+'), Middleware.contextChannelMembers, async ({ context, say, body, message }) => {
+        console.log(JSON.stringify({ context, body, message }));
+        try {
+            await say(`Context:\n${JSON.stringify({ context, body, message })}`);
+        } catch (err) {
+            await say(`Looks like I encountered an error :(\n[error] ${err.message}`);
+        }
     });
 
     // Listens to incoming messages that contain "hello"

@@ -26,8 +26,6 @@ const generatePackConfig = () => {
     };
 
     for (const [key, value] of Object.entries(projectPacks)) {
-        console.log(`Working on key ${key} with value ${JSON.stringify(value)}`);
-
         if (packageKeys.includes(key)) {
             // Object.defineProperty(packCfg, key, {
             //     value: key === 'scripts' ? npmScripts : value,
@@ -65,7 +63,7 @@ const importFromFolder = async (repoUrl: string, targetPath?: string, debugMessa
         if (err) throw err;
         console.log('deploying local file to Glitch...');
         importFromFolder(sourceRepo, distPath).then(() => {
-            console.log('deployed application to glitch');
+            console.log('successfully deployed application to glitch');
             process.exit(0);
         });
     });

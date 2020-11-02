@@ -29,7 +29,8 @@ const nowInLocale = (timezone: string) => {
     const senderMeetingDate = moment.tz(chrono.parseDate(message, nowSenderTime.toDate()), senderTimezone);
     const convertedToLocal = moment.tz(senderMeetingDate, localTimezone);
 
-    console.log(`message sent: ${message}`);
+    // display the results
+    console.log(`message sent: ${message}\n`);
     console.log(`now in local time ${nowLocalTime.tz()}: ${nowLocalTime.format(displayFormat)}`);
     console.log(`sender meeting date: ${senderMeetingDate.format(displayFormat)} - ${senderMeetingDate.tz()}`);
     console.log(`local meeting date: ${convertedToLocal.format(displayFormat)} - ${convertedToLocal.tz()}`);
