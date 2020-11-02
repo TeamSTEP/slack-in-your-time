@@ -13,7 +13,10 @@
         "sandbox": "ts-node-dev -r dotenv/config scripts/sandbox.ts"
     },
     "keywords": [
-        "slack-app"
+        "slack-app",
+        "bolt",
+        "remote-working",
+        "time-zone"
     ],
     "license": "MIT",
     "devDependencies": {

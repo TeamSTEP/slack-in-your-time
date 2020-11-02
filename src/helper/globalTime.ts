@@ -36,4 +36,6 @@ export const messageRefTime = (message: string, senderContext: moment.Moment) =>
             tz,
         };
     });
+
+    return timeContext;
 };

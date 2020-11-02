@@ -10,24 +10,19 @@ export default async function main() {
         logLevel: LogLevel.DEBUG,
     });
 
-    app.message('echo debug', Middleware.contextChannelMembers, async ({ context, say, body, message }) => {
-        console.log(JSON.stringify({ context, body, message }));
-        try {
-            await say(`Context:\n${JSON.stringify({ context, body, message })}`);
-        } catch (err) {
-            await say(`Looks like I encountered an error :(\n[error] ${err.message}`);
-        }
-    });
-
     // listen to every messages that starts with a whole word
-    app.message(RegExp('^w+'), Middleware.contextChannelMembers, async ({ context, say, body, message }) => {
-        console.log(JSON.stringify({ context, body, message }));
-        try {
-            await say(`Context:\n${JSON.stringify({ context, body, message })}`);
-        } catch (err) {
-            await say(`Looks like I encountered an error :(\n[error] ${err.message}`);
-        }
-    });
+    // note: this effectively listen to everything, which will be CPU intensive
+    app.message(
+        RegExp('^w+'),
+        Middleware.contextChannelMembers,
+        Middleware.contextMessageTime,
+        async ({ context, say, body, message }) => {
+            if (message.text && message.text === 'echo debug') {
+                console.log(JSON.stringify({ context, body, message }));
+                await say(`Context:\n${JSON.stringify({ context, body, message })}`);
+            }
+        },
+    );
 
     // Listens to incoming messages that contain "hello"
     app.message('change time', async ({ message, say }) => {
@@ -86,10 +81,15 @@ export default async function main() {
         await say(`no? Really?!`);
     });
 
+    app.error(async (error) => {
+        //todo: Check the details of the error to handle cases where you should retry sending a message or stop the app
+        console.error(error);
+    });
+
     (async () => {
-        // Start your app
+        // start the app
         await app.start(process.env.PORT || 3000);
 
-        console.log('⚡️ Bolt app is running!');
+        console.log('⚡️ Slack app is running!');
     })();
 }
