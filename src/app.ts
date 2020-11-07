@@ -11,7 +11,7 @@ export default async function main() {
         logLevel: LogLevel.DEBUG,
     });
 
-    app.message('echo debug', Middleware.contextChannelMembers, async ({ context, say, body }) => {
+    app.message('echo debug', async ({ context, say, body }) => {
         console.log(JSON.stringify({ context, body }));
         await say(`Context:\n${JSON.stringify({ context, body })}`);
     });

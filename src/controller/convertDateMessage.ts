@@ -10,7 +10,7 @@ export const promptMsgDateConvert: Middleware<SlackEventMiddlewareArgs<'message'
 
         const msgWithTime = context.message as EventContext.MessageTimeContext;
 
-        await say(Helpers.userConfirmationMsgBox(msgWithTime));
+        await say(Helpers.userConfirmationMsgBox(msgWithTime, context));
     } catch (err) {
         console.log(err);
     }
