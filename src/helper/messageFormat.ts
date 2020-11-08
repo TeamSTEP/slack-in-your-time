@@ -24,7 +24,7 @@ const dateSectionBlock = (timezone: string, localTime: EventContext.DateReferenc
         type: 'section',
         text: {
             type: 'mrkdwn',
-            text: `*${timezone}*\n${timeUlMd}`,
+            text: `*${timezone}*${timeUlMd}`,
         },
     };
 };
@@ -41,8 +41,8 @@ export const displayConvertedTimes = (sourceTime: moment.MomentZone, localTimes:
                 type: 'mrkdwn',
                 text: `Converted time from ${sourceTime.name}`,
             },
-            ...convertedBlocks,
         },
+        ...convertedBlocks,
     ];
     return messageBlock;
 };

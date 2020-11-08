@@ -56,6 +56,7 @@ export const convertTimeInChannel: Middleware<SlackActionMiddlewareArgs<BlockAct
     ack,
     respond,
     payload,
+    say,
 }) => {
     const action = 'convert_date';
     //body.actions[0].value;
@@ -84,8 +85,8 @@ export const convertTimeInChannel: Middleware<SlackActionMiddlewareArgs<BlockAct
         const convertedTimes = channelTimezones.map((tz) => {
             // convert the date referenced in the message to the channel member's local time
             const localTime = actionData.timeContext.content.map((i) => {
-                const start = i.start.tz(tz);
-                const end = i.end?.tz(tz);
+                const start = moment(i.start).tz(tz);
+                const end = i.end && moment(i.end).tz(tz);
 
                 return {
                     start,
@@ -99,11 +100,14 @@ export const convertTimeInChannel: Middleware<SlackActionMiddlewareArgs<BlockAct
         //todo: add a feature to send ephemeral messages to all members with their local time if the user choses
 
         const messageContent = Helpers.displayConvertedTimes(senderTimezone, convertedTimes);
-
+        console.log(JSON.stringify(messageContent));
         await respond({
-            blocks: messageContent,
-            replace_original: false,
             delete_original: true,
+        });
+
+        await say({
+            text: 'time conversion message',
+            blocks: messageContent,
         });
     } catch (err) {
         console.error(err);
