@@ -26,8 +26,11 @@ export const messageHasTimeRef: Middleware<SlackEventMiddlewareArgs<'message'>> 
             include_locale: true,
         })) as Users.InfoResponse;
 
-        const senderLocalTime = moment.unix(body.event_time).tz(userInfo.user.tz || 'GMT', true);
-        const parsedTime = Helpers.parseTimeReference(body.event.text, senderLocalTime);
+        // note: we disable this line because we know Slack timezones are the same as moment tz
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const userTimezone = moment.tz.zone(userInfo.user.tz || 'Etc/GMT')!;
+
+        const parsedTime = Helpers.parseTimeReference(body.event, userTimezone);
 
         if (!parsedTime) throw new Error(`Message ${body.event_id} does not mention any date`);
 
@@ -38,6 +41,8 @@ export const messageHasTimeRef: Middleware<SlackEventMiddlewareArgs<'message'>> 
         } as EventContext.MessageTimeContext;
 
         context.message = message;
+
+        console.log(`Message Time Ref:\n${JSON.stringify({ body, context, userInfo })}`);
 
         // Pass control to the next middleware function
         next && (await next());

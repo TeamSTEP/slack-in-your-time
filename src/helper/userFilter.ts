@@ -7,18 +7,21 @@ import moment from 'moment-timezone';
  * @param userList user list
  */
 export const getOnlyActiveUsers = (userList: Users.User[]) => {
+    const slackBot = 'USLACKBOT'; // slack bot ID is fixed
     const activeUsers = _.filter(userList, (user) => {
-        return !user.is_bot && !user.deleted && !'USLACKBOT'; // slack bot ID is fixed
+        return !user.is_bot && !user.deleted && !slackBot;
     });
     return activeUsers;
 };
 
 /**
  * Converts a list of users to a unique list of timezones.
- * If `include_locale` was set to false, timezone will default to GMT.
+ * If `include_locale` was set to false or it fails to parse the timezone, timezone will default to GMT.
  * @param userList list of users with timezone labels
  */
 export const getUserTimeZones = (userList: Users.User[]) => {
+    if (userList.length < 1) throw new Error('Cannot convert time zones from an empty user list');
+
     const tzList = _.map(userList, (user) => {
         const userTz = user.tz || 'Etc/GMT';
 
