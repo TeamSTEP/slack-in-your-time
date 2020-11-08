@@ -1,7 +1,7 @@
 {
     "name": "slack-in-your-time",
     "version": "0.0.1",
-    "description": "A Slack application that can convert your time to everyone else's",
+    "description": "A Slack application for a global team",
     "author": "Hoon Kim",
     "scripts": {
         "test": "NODE_ENV=test jest --verbose --coverage && eslint '*/**/*.{js,ts}'",
