@@ -11,24 +11,19 @@ export default async function main() {
         logLevel: LogLevel.DEBUG,
     });
 
-    app.message('echo debug', async ({ context, say, body }) => {
-        console.log(JSON.stringify({ context, body }));
-        await say(`Context:\n${JSON.stringify({ context, body })}`);
-    });
+    // app.message('echo debug', async ({ context, say, body }) => {
+    //     console.log(JSON.stringify({ context, body }));
+    //     await say(`Context:\n${JSON.stringify({ context, body })}`);
+    // });
 
     app.message(Middleware.preventBotMessages, Middleware.messageHasTimeRef, Controllers.promptMsgDateConvert);
 
-    app.action('convert_date', async ({ body, ack, say, context }) => {
-        console.log(JSON.stringify({ context, body }));
-        // Acknowledge the action
-        await ack();
-        await say(JSON.stringify({ context, body }));
-    });
+    app.action({ action_id: 'convert_date' }, Controllers.convertTimeInChannel);
 
-    app.action('dismiss_convert', async ({ body, ack, say }) => {
+    app.action({ action_id: 'dismiss_convert' }, async ({ ack, respond }) => {
         // Acknowledge the action
         await ack();
-        await say(`no? Really?!`);
+        await respond({ delete_original: true });
     });
 
     app.error(async (error) => {

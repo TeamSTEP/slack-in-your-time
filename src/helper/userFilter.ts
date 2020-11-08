@@ -27,6 +27,7 @@ export const getUserTimeZones = (userList: Users.User[]) => {
         return tz;
     });
 
+    // only return unique timezones
     return _.uniqWith(tzList, (a, b) => {
         return a.name === b.name;
     });

@@ -1,5 +1,5 @@
 import { SayArguments, Context } from '@slack/bolt';
-import { EventContext } from '../model';
+import { EventContext, Users } from '../model';
 import _ from 'lodash';
 
 const TIME_DISPLAY_FORMAT = 'MMM Do ddd, h:mm a';
@@ -10,7 +10,7 @@ const dateToUl = (date: EventContext.LocalDateReference) => {
     }`;
 };
 
-export const userConfirmationMsgBox = (timeContext: EventContext.MessageTimeContext, channelContext: Context) => {
+export const userConfirmationMsgBox = (timeContext: EventContext.MessageTimeContext, channelMembers: Users.User[]) => {
     const dateRef = timeContext.content[0];
 
     let dateDisplayString = '';
@@ -52,7 +52,7 @@ export const userConfirmationMsgBox = (timeContext: EventContext.MessageTimeCont
                             text: 'Yes Please',
                         },
                         style: 'primary',
-                        value: JSON.stringify(channelContext),
+                        value: JSON.stringify({ timeContext, channelMembers }),
                         action_id: 'convert_date',
                     },
                     {
@@ -63,7 +63,6 @@ export const userConfirmationMsgBox = (timeContext: EventContext.MessageTimeCont
                             text: 'No Thanks',
                         },
                         style: 'danger',
-                        value: 'btn_decline',
                         action_id: 'dismiss_convert',
                     },
                 ],
