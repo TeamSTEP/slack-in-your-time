@@ -11,10 +11,7 @@ export default async function main() {
         logLevel: LogLevel.DEBUG,
     });
 
-    // app.message('echo debug', async ({ context, say, body }) => {
-    //     console.log(JSON.stringify({ context, body }));
-    //     await say(`Context:\n${JSON.stringify({ context, body })}`);
-    // });
+    app.event('app_home_opened', Controllers.displayAppHomeTab);
 
     app.message(Middleware.preventBotMessages, Middleware.messageHasTimeRef, Controllers.promptMsgDateConvert);
 
