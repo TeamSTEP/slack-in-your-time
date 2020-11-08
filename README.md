@@ -2,6 +2,8 @@
 
 ![logo](img/banner.png)
 
+[![Support me on Patreon](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fshieldsio-patreon.vercel.app%2Fapi%3Fusername%3Dteamstep%26type%3Dpatrons&style=for-the-badge)](https://patreon.com/teamstep)
+
 > This app is still under development.
 > Expect a lot of changes to happen before it's published to Slack.
 
@@ -22,3 +24,5 @@ This application is powered by the wonderful library for NLP date parsing that i
 
 Once you install this app to your Slack channel, it will listen to all text messages that references time.
 If your channel member has more than one timezones, this app will ask you if you would like to convert the time from your local timezone to all the member's timezone.
+
+Right now this is done automatically for everyone, but we are planning on adding configurable behaviors like the ability to choose between public messages or messages only visible to the respective members.
