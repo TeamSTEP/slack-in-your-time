@@ -66,11 +66,17 @@ export const convertTimeInChannel: Middleware<SlackActionMiddlewareArgs<BlockAct
         };
         const channelMembers = actionData.payload;
 
+        const senderTimezone = moment.tz.zone(actionData.timeContext.content[0].tz);
+        if (!senderTimezone) throw new Error('Failed to get timezone data for ' + actionData.timeContext.content[0].tz);
+
         console.log(`Convert Time:\n${JSON.stringify({ payload, body, channelMembers })}`);
+        // filter out the timezone that is same as the sender
+        const channelTimezones = _.filter(
+            Helpers.getUserTimeZones(channelMembers).map((tz) => tz.name),
+            (i) => i !== senderTimezone.name,
+        );
 
-        if (channelMembers.length > 0) {
-            const channelTimezones = Helpers.getUserTimeZones(channelMembers).map((tz) => tz.name);
-
+        if (channelMembers.length > 0 && channelTimezones) {
             const convertedTimes = channelTimezones.map((tz) => {
                 const localTime = actionData.timeContext.content.map((i) => {
                     // convert the time to everyone's local timezone
@@ -85,9 +91,6 @@ export const convertTimeInChannel: Middleware<SlackActionMiddlewareArgs<BlockAct
                 });
                 return localTime;
             });
-            const senderTimezone = moment.tz.zone(actionData.timeContext.content[0].tz);
-            if (!senderTimezone)
-                throw new Error('Failed to get timezone data for ' + actionData.timeContext.content[0].tz);
 
             const messageContent = Helpers.displayConvertedTimes(senderTimezone, convertedTimes);
 

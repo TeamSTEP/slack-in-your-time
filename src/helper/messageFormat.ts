@@ -26,12 +26,7 @@ const dateSectionBlock = (timezone: string, localTime: EventContext.DateReferenc
 };
 
 export const displayConvertedTimes = (sourceTime: moment.MomentZone, localTimes: EventContext.DateReference[][]) => {
-    // prevent the source timezone from being displayed
-    const filteredTimes = _.filter(localTimes, (i) => {
-        return i[0].tz !== sourceTime.name;
-    });
-
-    const convertedBlocks = _.map(filteredTimes, (i) => {
+    const convertedBlocks = _.map(localTimes, (i) => {
         return dateSectionBlock(i[0].tz, i);
     });
 
