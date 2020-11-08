@@ -36,13 +36,12 @@ export const messageHasTimeRef: Middleware<SlackEventMiddlewareArgs<'message'>> 
 
         const message = {
             senderId: body.event.user,
+            sentChannel: body.event.channel,
             content: parsedTime,
             sentTime: moment.unix(body.event_time), // UTC
         } as EventContext.MessageTimeContext;
 
         context.message = message;
-
-        console.log(`Message Time Ref:\n${JSON.stringify({ body, context, userInfo })}`);
 
         // Pass control to the next middleware function
         next && (await next());

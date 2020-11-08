@@ -1,5 +1,4 @@
-import { SayArguments, Context } from '@slack/bolt';
-import { EventContext, Users } from '../model';
+import { EventContext } from '../model';
 import _ from 'lodash';
 
 const TIME_DISPLAY_FORMAT = 'MMM Do ddd, h:mm a';
@@ -14,6 +13,11 @@ const dateToUl = (date: EventContext.DateReference) => {
     }`;
 };
 
+/**
+ * Converts the time information into a formatted markdown section block for Slack.
+ * @param timezone the timezone label to display
+ * @param localTime list of dates to display
+ */
 const dateSectionBlock = (timezone: string, localTime: EventContext.DateReference[]) => {
     const timeUlMd = _.map(localTime, (i) => dateToUl(i));
     return {
@@ -46,15 +50,11 @@ export const displayConvertedTimes = (sourceTime: moment.MomentZone, localTimes:
 export const userConfirmationMsgBox = <T>(timeContext: EventContext.MessageTimeContext, confirmationPayload: T) => {
     const dateRef = timeContext.content[0];
 
-    let dateDisplayString = '';
+    const ulStringList = _.map(timeContext.content, (i) => {
+        return dateToUl(i);
+    });
 
-    if (timeContext.content.length > 0) {
-        for (let i = 0; i < timeContext.content.length; i++) {
-            dateDisplayString = dateDisplayString.concat(dateToUl(timeContext.content[i]));
-        }
-    } else {
-        dateDisplayString = dateToUl(dateRef);
-    }
+    const dateDisplayString = ulStringList.join('\n');
 
     const messageBlock = [
         {
@@ -80,7 +80,7 @@ export const userConfirmationMsgBox = <T>(timeContext: EventContext.MessageTimeC
                     text: {
                         type: 'plain_text',
                         emoji: true,
-                        text: 'Yes Please',
+                        text: 'Yes',
                     },
                     style: 'primary',
                     value: JSON.stringify({ timeContext, payload: confirmationPayload }),
@@ -91,7 +91,7 @@ export const userConfirmationMsgBox = <T>(timeContext: EventContext.MessageTimeC
                     text: {
                         type: 'plain_text',
                         emoji: true,
-                        text: 'No Thanks',
+                        text: 'No',
                     },
                     style: 'danger',
                     action_id: 'dismiss_convert',

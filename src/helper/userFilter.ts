@@ -9,7 +9,7 @@ import moment from 'moment-timezone';
 export const getOnlyActiveUsers = (userList: Users.User[]) => {
     const slackBot = 'USLACKBOT'; // slack bot ID is fixed
     const activeUsers = _.filter(userList, (user) => {
-        return !user.is_bot && !user.deleted && !slackBot;
+        return !user.is_bot && !user.deleted && user.id !== slackBot;
     });
     return activeUsers;
 };
