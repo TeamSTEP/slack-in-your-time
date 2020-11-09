@@ -50,17 +50,20 @@ const homeHeaderBlock = (userId: string) => {
 
 export const displayAppHomeTab: Middleware<SlackEventMiddlewareArgs<'app_home_opened'>> = async ({ client, event }) => {
     try {
-        const userId = event.user;
-        const headerBlock = homeHeaderBlock(userId);
-        const res = await client.views.publish({
-            user_id: userId,
-            view: {
-                type: 'home',
-                blocks: headerBlock,
-            },
-        });
+        if (event.tab === 'home') {
+            const userId = event.user;
+            const headerBlock = homeHeaderBlock(userId);
 
-        console.log(res);
+            const res = await client.views.publish({
+                user_id: userId,
+                view: {
+                    type: 'home',
+                    blocks: headerBlock,
+                },
+            });
+
+            console.log(res);
+        }
     } catch (err) {
         console.log(err);
     }

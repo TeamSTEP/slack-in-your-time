@@ -1,13 +1,30 @@
-import { App, LogLevel } from '@slack/bolt';
+import { App, LogLevel, ExpressReceiver } from '@slack/bolt';
 import _ from 'lodash';
 import * as Middleware from './middleware';
 import * as Controllers from './controller';
+import express from 'express';
+import path from 'path';
 
 export default async function main() {
-    // Initializes your app with your bot token and signing secret
+    if (!process.env.SLACK_SIGNING_SECRET || !process.env.SLACK_BOT_TOKEN)
+        throw new Error('No Slack bot token was detected from the environment, please provide one');
+
+    // initialize a custom express receiver to use express.js
+    const expressReceiver = new ExpressReceiver({ signingSecret: process.env.SLACK_SIGNING_SECRET });
+    const expressApp = expressReceiver.app;
+
+    // import the view file that contains the static pages
+    expressApp.use(express.static('views'));
+
+    // render the client page
+    expressApp.get('/', (req, res) => {
+        return res.sendFile(path.join(__dirname, 'index.html'));
+    });
+
+    // Initializes your app with the bot token and the custom receiver
     const app = new App({
         token: process.env.SLACK_BOT_TOKEN,
-        signingSecret: process.env.SLACK_SIGNING_SECRET,
+        receiver: expressReceiver,
         logLevel: LogLevel.DEBUG,
     });
 

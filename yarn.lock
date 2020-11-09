@@ -2415,10 +2415,10 @@ getpass@^0.1.1:
   dependencies:
     assert-plus "^1.0.0"
 
-glitch-deploy-tool@^0.1.3-alpha:
-  version "0.1.3-alpha"
-  resolved "https://registry.yarnpkg.com/glitch-deploy-tool/-/glitch-deploy-tool-0.1.3-alpha.tgz#277ac17d0dd55768511b7007b2a2d5ef52e6b1d6"
-  integrity sha512-BYybgcbhY8tBOBShFWJwrMHjcW7j8vAtr71QsAqURDq3ybsVB+USncXIxc3Shrgq2Spoz1x57z3nQ2NQ0Ofprg==
+glitch-deploy-tool@^0.1.4-alpha:
+  version "0.1.4-alpha"
+  resolved "https://registry.yarnpkg.com/glitch-deploy-tool/-/glitch-deploy-tool-0.1.4-alpha.tgz#2b9b6ad3096744649a92530f0bf66f86ddeef374"
+  integrity sha512-dmuBcj8jc9aMd/3JrI31g8/3uwQXG+Co9U8vAF/qUplFNOGc7QREo2X3f2GZetWfueujlSSiM6XTHtbBKUYg0g==
   dependencies:
     dashdash "^2.0.0"
     fs-extra "^9.0.1"
