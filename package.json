@@ -9,10 +9,11 @@
     "scripts": {
         "test": "NODE_ENV=test jest --verbose --coverage && eslint '*/**/*.{js,ts}'",
         "start": "node index.js",
-        "build": "rimraf ./dist && tsc --project tsconfig.json",
+        "build": "rimraf ./dist && tsc --project tsconfig.json && yarn run copy:assets",
         "dev": "NODE_ENV=development ts-node-dev -r dotenv/config src/index.ts",
         "lint": "eslint '*/**/*.{js,ts}' --quiet --fix",
         "deploy": "yarn run build && ts-node-dev -r dotenv/config scripts/deploy.ts",
+        "copy:assets": "cp -r src/view dist/",
         "sandbox": "ts-node-dev -r dotenv/config scripts/sandbox.ts"
     },
     "keywords": [
