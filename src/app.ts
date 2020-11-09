@@ -14,11 +14,11 @@ export default async function main() {
     const expressApp = expressReceiver.app;
 
     // import the view file that contains the static pages
-    expressApp.use(express.static('views'));
+    expressApp.use(express.static('view'));
 
     // render the client page
     expressApp.get('/', (req, res) => {
-        return res.sendFile(path.join(__dirname, 'index.html'));
+        return res.sendFile(path.join(__dirname, 'view', 'index.html'));
     });
 
     // Initializes your app with the bot token and the custom receiver
