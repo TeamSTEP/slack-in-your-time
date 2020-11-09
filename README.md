@@ -2,8 +2,6 @@
 
 ![logo](./img/banner.jpg)
 
-[![Support me on Patreon](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fshieldsio-patreon.vercel.app%2Fapi%3Fusername%3Dteamstep%26type%3Dpatrons&style=for-the-badge)](https://patreon.com/teamstep)
-
 > This app is still under development.
 > Expect a lot of changes to happen before it's published to Slack.
 
@@ -19,6 +17,8 @@ Until everyone is used to using Unix epoch time, we'll have to do something abou
 That is why we decided to make this Slack app.
 
 ## Feature
+
+![screenshot](./img/sample.jpg)
 
 This application is powered by the wonderful library for NLP date parsing that is [chrono](https://github.com/wanasit/chrono) and [bolt-js](https://github.com/SlackAPI/bolt-js).
 
