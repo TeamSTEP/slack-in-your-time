@@ -3,6 +3,9 @@
     "version": "0.0.1",
     "description": "A Slack application for a global team",
     "author": "Hoon Kim",
+    "repository": "https://github.com/TeamSTEP/slack-in-your-time.git",
+    "homepage": "https://github.com/TeamSTEP/slack-in-your-time",
+    "bugs": "https://github.com/TeamSTEP/slack-in-your-time/issues",
     "scripts": {
         "test": "NODE_ENV=test jest --verbose --coverage && eslint '*/**/*.{js,ts}'",
         "start": "node index.js",
