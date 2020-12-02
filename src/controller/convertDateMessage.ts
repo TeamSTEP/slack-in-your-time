@@ -5,7 +5,7 @@ import {
     BlockAction,
     ButtonAction,
 } from '@slack/bolt';
-import { Users, EventContext } from '../model';
+import { EventContext } from '../model';
 import * as Helpers from '../helper';
 import _ from 'lodash';
 import moment from 'moment-timezone';
@@ -96,8 +96,6 @@ export const convertTimeInChannel: Middleware<SlackActionMiddlewareArgs<BlockAct
             });
             return localTime;
         });
-
-        //todo: add a feature to send ephemeral messages to all members with their local time if the user choses
 
         const messageContent = Helpers.displayConvertedTimes(senderTimezone, convertedTimes);
         console.log(JSON.stringify(messageContent));

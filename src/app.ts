@@ -21,21 +21,24 @@ export default async function main() {
         return res.sendFile(path.join(__dirname, 'view', 'index.html'));
     });
 
-    // Initializes your app with the bot token and the custom receiver
+    // initializes your app with the bot token and the custom receiver
     const app = new App({
         token: process.env.SLACK_BOT_TOKEN,
         receiver: expressReceiver,
         logLevel: LogLevel.DEBUG,
     });
 
+    // handle home tab
     app.event('app_home_opened', Controllers.displayAppHomeTab);
 
+    // handle public channel message events
     app.message(Middleware.preventBotMessages, Middleware.messageHasTimeRef, Controllers.promptMsgDateConvert);
 
+    // handle confirmation message options
     app.action({ action_id: 'convert_date' }, Controllers.convertTimeInChannel);
 
     app.action({ action_id: 'dismiss_convert' }, async ({ ack, respond }) => {
-        // Acknowledge the action
+        // acknowledge the action
         await ack();
         await respond({ delete_original: true });
     });
