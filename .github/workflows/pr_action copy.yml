@@ -1,13 +1,15 @@
-name: Deploy to Glitch
-on:
-  push:
+name: PR Checks
+on: 
+  pull_request:
     branches:
       - 'master'
       - 'main'
+
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    strategy:
+    run_tests:
+        name: Unit tests
+        runs-on: ubuntu-latest
+        strategy:
             matrix:
                 node-version: [12.x]
         steps:
@@ -16,11 +18,8 @@ jobs:
               uses: actions/setup-node@v2-beta
               with:
                   node-version: ${{ matrix.node-version }}
-            - name: Deploy Project
+            - name: unit_test
               run: |
                   yarn
-                  yarn build
-                  yarn deploy
-              env:
-                SOURCE_REPO: ${{ secrets.GLITCH_REPO }}
+                  yarn test
               working-directory: ./
