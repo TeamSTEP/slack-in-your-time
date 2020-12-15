@@ -5,7 +5,7 @@ import path from 'path';
 import projectPacks from '../package.json';
 import _ from 'lodash';
 
-import * as glitchDeploy from 'glitch-deploy-tool/lib';
+import * as glitchDeploy from 'glitch-deploy-tool';
 
 interface NpmPackage {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -40,12 +40,7 @@ const generatePackConfig = () => {
 const importFromFolder = async (repoUrl: string, targetPath?: string, debugMessage?: boolean) => {
     const glitchRepo = new glitchDeploy.GlitchGit(repoUrl, debugMessage);
 
-    try {
-        await glitchRepo.publishFilesToGlitch(targetPath);
-    } catch (e) {
-        glitchRepo.cleanGitInstance();
-        throw e;
-    }
+    await glitchRepo.publishFilesToGlitch(targetPath);
 
     console.log('successfully imported projects from ' + (targetPath || process.cwd()));
 };
