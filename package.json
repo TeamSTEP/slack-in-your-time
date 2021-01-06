@@ -46,7 +46,7 @@
     "dependencies": {
         "@slack/bolt": "^2.4.1",
         "@slack/web-api": "^5.13.0",
-        "axios": "^0.21.0",
+        "axios": "^0.21.1",
         "chrono-node": "^2.1.9",
         "lodash": "^4.17.20",
         "moment-timezone": "^0.5.31",
