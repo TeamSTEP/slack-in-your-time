@@ -1,5 +1,5 @@
 import { Middleware, SlackEventMiddlewareArgs } from '@slack/bolt';
-import { Users, Conversations, EventContext } from '../model';
+import { Users, EventContext } from '../model';
 import * as Helpers from '../helper';
 import { WebClient } from '@slack/web-api';
 import _ from 'lodash';
@@ -18,7 +18,9 @@ export const preventBotMessages: Middleware<SlackEventMiddlewareArgs<'message'>>
 
 export const messageHasTimeRef: Middleware<SlackEventMiddlewareArgs<'message'>> = async ({ body, context, next }) => {
     try {
-        if (!body.event.text) throw new Error(`Message ${body.event_id} does not have any content`);
+        // note: a normal message submission should have a subtype of undefined
+        if (body.event.subtype || !body.event.text)
+            throw new Error(`Message ${body.event_id} does not have any content`);
 
         const userInfo = (await app.users.info({
             token: context.botToken,
@@ -34,14 +36,14 @@ export const messageHasTimeRef: Middleware<SlackEventMiddlewareArgs<'message'>> 
 
         if (!parsedTime) throw new Error(`Message ${body.event_id} does not mention any date`);
 
-        const message = {
+        const messageMeta = {
             senderId: body.event.user,
             sentChannel: body.event.channel,
             content: parsedTime,
             sentTime: moment.unix(body.event_time), // UTC
         } as EventContext.MessageTimeContext;
 
-        context.message = message;
+        context.message = messageMeta;
 
         // Pass control to the next middleware function
         next && (await next());

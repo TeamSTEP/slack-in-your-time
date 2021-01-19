@@ -1,5 +1,5 @@
 // this is just a simple test starter for jest
-
+// todo: add unit tests (for real this time)
 function addNumber(a: number, b: number) {
     return a + b;
 }

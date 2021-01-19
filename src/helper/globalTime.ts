@@ -2,7 +2,7 @@ import * as chrono from 'chrono-node';
 import moment from 'moment-timezone';
 import _ from 'lodash';
 import { EventContext } from '../model';
-import { MessageEvent } from '@slack/bolt';
+import { GenericMessageEvent } from '@slack/bolt';
 
 /**
  * Parses the given message string to determine the full date that it is referencing to.
@@ -10,7 +10,7 @@ import { MessageEvent } from '@slack/bolt';
  * @param messageEvent message event that we want to parse
  * @param senderTz message sender's timezone object
  */
-export const parseTimeReference = (messageEvent: MessageEvent, senderTz: moment.MomentZone) => {
+export const parseTimeReference = (messageEvent: GenericMessageEvent, senderTz: moment.MomentZone) => {
     const message = messageEvent.text;
     if (!message) throw new Error('No message was passed to parse');
     const sentTime = moment.unix(parseInt(messageEvent.ts)).tz(senderTz.name, true);

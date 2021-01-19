@@ -4,14 +4,33 @@ import * as Middleware from './middleware';
 import * as Controllers from './controller';
 import express from 'express';
 import path from 'path';
+import { measureMemory } from 'vm';
 
 export default async function main() {
     if (!process.env.SLACK_SIGNING_SECRET || !process.env.SLACK_BOT_TOKEN)
         throw new Error('No Slack bot token was detected from the environment, please provide one');
 
+    // parse the environmental variable of the port number from string or use the default port number
+    const ENV_PORT = (process.env.PORT && Number.parseInt(process.env.PORT)) || 3000;
+
     // initialize a custom express receiver to use express.js
+    //todo: update this to use the new HTTPReceiver (https://github.com/slackapi/bolt-js/issues/670)
     const expressReceiver = new ExpressReceiver({ signingSecret: process.env.SLACK_SIGNING_SECRET });
     const expressApp = expressReceiver.app;
+
+    // initializes your app with the bot token and the custom receiver
+    const app = new App({
+        token: process.env.SLACK_BOT_TOKEN,
+        receiver: expressReceiver,
+        logLevel: LogLevel.DEBUG,
+    });
+
+    (async () => {
+        // start the app
+        await app.start(ENV_PORT);
+
+        console.log('⚡️ Slack app is running!');
+    })();
 
     // import the view file that contains the static pages
     expressApp.use(express.static('view'));
@@ -19,13 +38,6 @@ export default async function main() {
     // render the client page
     expressApp.get('/', (req, res) => {
         return res.sendFile(path.join(__dirname, 'view', 'index.html'));
-    });
-
-    // initializes your app with the bot token and the custom receiver
-    const app = new App({
-        token: process.env.SLACK_BOT_TOKEN,
-        receiver: expressReceiver,
-        logLevel: LogLevel.DEBUG,
     });
 
     // handle home tab
@@ -47,11 +59,4 @@ export default async function main() {
         //todo: Check the details of the error to handle cases where you should retry sending a message or stop the app
         console.error(error);
     });
-
-    (async () => {
-        // start the app
-        await app.start(process.env.PORT || 3000);
-
-        console.log('⚡️ Slack app is running!');
-    })();
 }
