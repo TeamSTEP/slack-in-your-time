@@ -4,7 +4,6 @@ import * as Middleware from './middleware';
 import * as Controllers from './controller';
 import express from 'express';
 import path from 'path';
-import { measureMemory } from 'vm';
 
 export default async function main() {
     if (!process.env.SLACK_SIGNING_SECRET || !process.env.SLACK_BOT_TOKEN)
@@ -15,7 +14,10 @@ export default async function main() {
 
     // initialize a custom express receiver to use express.js
     //todo: update this to use the new HTTPReceiver (https://github.com/slackapi/bolt-js/issues/670)
-    const expressReceiver = new ExpressReceiver({ signingSecret: process.env.SLACK_SIGNING_SECRET });
+    const expressReceiver = new ExpressReceiver({
+        signingSecret: process.env.SLACK_SIGNING_SECRET,
+        processBeforeResponse: true,
+    });
     const expressApp = expressReceiver.app;
 
     // initializes your app with the bot token and the custom receiver
@@ -23,6 +25,7 @@ export default async function main() {
         token: process.env.SLACK_BOT_TOKEN,
         receiver: expressReceiver,
         logLevel: LogLevel.DEBUG,
+        developerMode: process.env.NODE_ENV === 'development',
     });
 
     (async () => {
@@ -38,6 +41,11 @@ export default async function main() {
     // render the client page
     expressApp.get('/', (req, res) => {
         return res.sendFile(path.join(__dirname, 'view', 'index.html'));
+    });
+
+    expressApp.get('/slack/oauth_redirect', (req, res) => {
+        //todo: add OAuth redirect handler
+        //todo: add a remote database to store authenticated workspaces
     });
 
     // handle home tab
