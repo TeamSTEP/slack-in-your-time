@@ -48,7 +48,7 @@
         "axios": "^0.21.1",
         "chrono-node": "^2.2.1",
         "express": "^4.17.1",
-        "lodash": "^4.17.20",
+        "lodash": "^4.17.21",
         "moment-timezone": "^0.5.33",
         "node": "^15.8.0",
         "reflect-metadata": "^0.1.13"
