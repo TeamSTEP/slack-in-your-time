@@ -16,6 +16,9 @@ export const preventBotMessages: Middleware<SlackEventMiddlewareArgs<'message'>>
     }
 };
 
+/**
+ * Listener middleware that checks if the message sent contains a string that references time.
+ */
 export const messageHasTimeRef: Middleware<SlackEventMiddlewareArgs<'message'>> = async ({ body, context, next }) => {
     try {
         // note: a normal message submission should have a subtype of undefined

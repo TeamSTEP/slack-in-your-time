@@ -1,4 +1,4 @@
 export * from './userFilter';
-export * from './globalTime';
+export * from './parseTextTime'
 export * from './messageFormat';
 export * from './webClientFetch';

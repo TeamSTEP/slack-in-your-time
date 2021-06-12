@@ -15,8 +15,10 @@ export const parseTimeReference = (messageEvent: GenericMessageEvent, senderTz: 
     if (!message) throw new Error('No message was passed to parse');
     const sentTime = moment.unix(parseInt(messageEvent.ts)).tz(senderTz.name, true);
     //const senderTimezone = senderContext.tz.name;
-    const parsedDate = chrono.casual.parse(message, sentTime.toDate());
-    if (!parsedDate || parsedDate.length < 1) return undefined;
+    const parsedDate = messageToTime(message, sentTime.toDate());
+
+    // no reference to time in the text
+    if (!parsedDate || parsedDate.length < 1) return [];
 
     const timeContext = _.map(parsedDate, (date) => {
         const start = moment.tz(date.start.date(), senderTz.name);
@@ -33,3 +35,10 @@ export const parseTimeReference = (messageEvent: GenericMessageEvent, senderTz: 
 
     return timeContext;
 };
+
+
+const messageToTime = (msg: string, refDate?: Date) => {
+    const parsedDate = chrono.casual.parse(msg, refDate);
+
+    return parsedDate;
+}

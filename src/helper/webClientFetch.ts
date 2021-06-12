@@ -1,20 +1,19 @@
 import { Users, Conversations } from '../model';
 import * as Helpers from '.';
 import _ from 'lodash';
-import { WebClient, ChatPostEphemeralArguments } from '@slack/web-api';
+import type { ChatPostEphemeralArguments } from '@slack/web-api';
+import { slackWebClient } from '../client';
 
-const app = new WebClient();
-
-export const getChannelMembers = async (channelId: string, callToken: string) => {
+export const getConversationMembers = async (conversationId: string, callToken: string) => {
     // array of member IDs (ex: U015Y14JKME)
-    const { members } = (await app.conversations.members({
+    const { members } = (await slackWebClient.conversations.members({
         token: callToken,
-        channel: channelId,
+        channel: conversationId,
     })) as Conversations.MembersResponse;
 
     const membersInfo = await Promise.all(
         members.map(async (user) => {
-            const info = (await app.users.info({
+            const info = (await slackWebClient.users.info({
                 token: callToken,
                 user: user,
                 include_locale: true,
@@ -40,6 +39,6 @@ export const getChannelMembers = async (channelId: string, callToken: string) =>
  * @param args POST request arguments
  */
 export const sendEphemeralMessage = async (args: ChatPostEphemeralArguments) => {
-    const res = await app.chat.postEphemeral(args);
+    const res = await slackWebClient.chat.postEphemeral(args);
     return res;
 };

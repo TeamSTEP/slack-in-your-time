@@ -19,11 +19,12 @@ export const promptMsgDateConvert: Middleware<SlackEventMiddlewareArgs<'message'
     try {
         // the message property should have been passed by the previous middleware
         if (!context.message) throw new Error(`Message context was not found`);
+        if (!context.botToken) throw new Error('No bot message provided!');
 
         const msgWithTime = context.message as EventContext.MessageTimeContext;
         const channel = body.event.channel;
 
-        const channelMembers = await Helpers.getChannelMembers(channel, context.botToken);
+        const channelMembers = await Helpers.getConversationMembers(channel, context.botToken);
 
         // filter out the timezone that is same as the sender
         const channelTimezones = _.filter(
