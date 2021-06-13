@@ -61,8 +61,7 @@ export const userConfirmationMsgBox = <T>(timeContext: EventContext.MessageTimeC
             type: 'section',
             text: {
                 type: 'mrkdwn',
-                text:
-                    "Hey! Looks like you might have mentioned a date on your message!\nWould you like me to convert this to everyone's time zone?",
+                text: 'Hey! Looks like you might have mentioned a date on your message!\nWould you like me to convert this time zone?',
             },
         },
         {

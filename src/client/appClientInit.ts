@@ -10,7 +10,7 @@ const expressReceiver = new ExpressReceiver({
 // initializes the slack app with the bot token and the custom receiver
 const slackBoltApp = new App({
     receiver: expressReceiver,
-    ...clientConfig
+    ...clientConfig,
 });
 
 const expressApp = expressReceiver.app;

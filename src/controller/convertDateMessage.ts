@@ -18,7 +18,7 @@ import moment from 'moment-timezone';
 export const promptMsgDateConvert: Middleware<SlackEventMiddlewareArgs<'message'>> = async ({ context, body }) => {
     try {
         // the message property should have been passed by the previous middleware
-        if (!context.message) throw new Error(`Message context was not found`);
+        if (!context.message) throw new Error('Message context was not found');
         if (!context.botToken) throw new Error('No bot message provided!');
 
         const msgWithTime = context.message as EventContext.MessageTimeContext;

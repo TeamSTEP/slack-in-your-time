@@ -36,9 +36,8 @@ export const parseTimeReference = (messageEvent: GenericMessageEvent, senderTz: 
     return timeContext;
 };
 
-
 const messageToTime = (msg: string, refDate?: Date) => {
     const parsedDate = chrono.casual.parse(msg, refDate);
 
     return parsedDate;
-}
+};
