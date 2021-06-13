@@ -1,6 +1,6 @@
 # Slack In Your Time
 
-![logo](./img/banner.jpg)
+![banner](https://user-images.githubusercontent.com/40356749/121809381-86492280-cc97-11eb-9848-c4cdeb0c5f18.jpg)
 
 > This app is still under development.
 > Expect a lot of changes to happen before it's published to Slack.
@@ -18,7 +18,7 @@ That is why we decided to make this Slack app.
 
 ## Feature
 
-![screenshot](./img/sample.jpg)
+![sample](https://user-images.githubusercontent.com/40356749/121809399-94973e80-cc97-11eb-8e62-13ea6c1e4bd9.jpg)
 
 This application is powered by the wonderful library for NLP date parsing that is [chrono](https://github.com/wanasit/chrono) and [bolt-js](https://github.com/SlackAPI/bolt-js).
 
