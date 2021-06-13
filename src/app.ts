@@ -1,8 +1,5 @@
-import _ from 'lodash';
 import * as Middleware from './middleware';
 import * as Controllers from './controller';
-import express from 'express';
-import path from 'path';
 import { slackBoltApp, expressApp } from './client';
 
 export default async function main() {
@@ -19,13 +16,10 @@ export default async function main() {
         console.log('⚡️ Slack app is running!');
     })();
 
-    // import the view file that contains the static pages
-    expressApp.use(express.static('view'));
-
     // render the client page
-    expressApp.get('/', (req, res) => {
+    expressApp.get('/', (_req, res) => {
         //todo: serve the installation button element
-        return res.sendFile(path.join(__dirname, 'view', 'index.html'));
+        return res.send('<button type="button" onClick="alert(\'Hello World\')">Greet</button>');
     });
 
     expressApp.get('/slack/oauth_redirect', (req, res) => {

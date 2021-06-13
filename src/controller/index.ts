@@ -1,2 +1,2 @@
 export * from './convertDateMessage';
-export * from './appHome';
+export * from './renderAppHome';

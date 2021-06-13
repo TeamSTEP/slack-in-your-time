@@ -1,6 +1,8 @@
-import { Middleware, SlackEventMiddlewareArgs } from '@slack/bolt';
+interface HomeBlockProps {
+    userId: string;
+}
 
-const homeHeaderBlock = (userId: string) => {
+export const appHomeBlock = (props: HomeBlockProps) => {
     return [
         {
             type: 'header',
@@ -20,7 +22,7 @@ const homeHeaderBlock = (userId: string) => {
             type: 'section',
             text: {
                 type: 'mrkdwn',
-                text: `Hello <@${userId}>, thank you for using *Slack In Your Time*: a simple application for teams working around the world!
+                text: `Hello <@${props.userId}>, thank you for using *Slack In Your Time*: a simple application for teams working around the world!
                 This application is still under heavy development, so please note that not everything will work as expected.`,
             },
         },
@@ -135,23 +137,4 @@ const homeHeaderBlock = (userId: string) => {
             ],
         },
     ];
-};
-
-export const displayAppHomeTab: Middleware<SlackEventMiddlewareArgs<'app_home_opened'>> = async ({ client, event }) => {
-    try {
-        const userId = event.user;
-        const headerBlock = homeHeaderBlock(userId);
-
-        const res = await client.views.publish({
-            user_id: userId,
-            view: {
-                type: 'home',
-                blocks: headerBlock,
-            },
-        });
-
-        console.log(res);
-    } catch (err) {
-        console.log(err);
-    }
 };

@@ -13,6 +13,8 @@ const dateToUl = (date: EventContext.DateReference) => {
     }`;
 };
 
+//todo: move the message blocks to the view folder
+
 /**
  * Converts the time information into a formatted markdown section block for Slack.
  * @param timezone the timezone label to display
