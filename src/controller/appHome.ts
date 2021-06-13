@@ -45,6 +45,95 @@ const homeHeaderBlock = (userId: string) => {
         {
             type: 'divider',
         },
+        {
+            type: 'section',
+            text: {
+                type: 'mrkdwn',
+                text: 'Time converter tool',
+            },
+        },
+        {
+            type: 'actions',
+            elements: [
+                {
+                    type: 'datepicker',
+                    initial_date: '1990-04-28',
+                    placeholder: {
+                        type: 'plain_text',
+                        text: 'Date',
+                        emoji: true,
+                    },
+                    action_id: 'datepicker-action',
+                },
+                {
+                    type: 'timepicker',
+                    initial_time: '13:37',
+                    placeholder: {
+                        type: 'plain_text',
+                        text: 'Select time',
+                        emoji: true,
+                    },
+                    action_id: 'timepicker-action',
+                },
+                {
+                    type: 'static_select',
+                    placeholder: {
+                        type: 'plain_text',
+                        text: 'Time Zone',
+                        emoji: true,
+                    },
+                    options: [
+                        {
+                            text: {
+                                type: 'plain_text',
+                                text: 'JST (UTC+9:00)',
+                                emoji: true,
+                            },
+                            value: 'value-0',
+                        },
+                        {
+                            text: {
+                                type: 'plain_text',
+                                text: 'MST (UTC-07:00)',
+                                emoji: true,
+                            },
+                            value: 'value-1',
+                        },
+                        {
+                            text: {
+                                type: 'plain_text',
+                                text: 'AFT (UTC+04:30)',
+                                emoji: true,
+                            },
+                            value: 'value-2',
+                        },
+                    ],
+                    action_id: 'static_select-input',
+                },
+                {
+                    type: 'button',
+                    text: {
+                        type: 'plain_text',
+                        text: 'Send converted time',
+                        emoji: true,
+                    },
+                    value: 'click_me_123',
+                    style: 'primary',
+                    action_id: 'actionId-1',
+                },
+                {
+                    type: 'button',
+                    text: {
+                        type: 'plain_text',
+                        text: 'Cancel',
+                        emoji: true,
+                    },
+                    value: 'click_me_123',
+                    style: 'danger',
+                    action_id: 'actionId-2',
+                },
+            ],
+        },
     ];
 };
 

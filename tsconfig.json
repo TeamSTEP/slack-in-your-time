@@ -2,7 +2,7 @@
     "compilerOptions": {
         "module": "commonjs",
         "esModuleInterop": true,
-        "target": "es2015",
+        "target": "es2017",
         "lib": ["es6"],
         "moduleResolution": "node",
         "sourceMap": true,
@@ -15,7 +15,7 @@
         "strictPropertyInitialization": false,
         "removeComments": true
     },
-    "lib": ["es2015"],
+    "lib": ["es2017"],
     "include": ["src/**/*"],
-    "exclude": ["node_modules", "build", "dist", "scripts", "tests"]
+    "exclude": ["node_modules", "build", "dist", "ci", "tests"]
 }
