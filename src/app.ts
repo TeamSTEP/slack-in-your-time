@@ -1,6 +1,7 @@
 import * as Middleware from './middleware';
 import * as Controllers from './controller';
-import { slackBoltApp, expressApp } from './client';
+import { slackBoltApp } from './client';
+import type { App } from '@slack/bolt';
 
 export default async function main() {
     if (!process.env.SLACK_SIGNING_SECRET || !process.env.SLACK_BOT_TOKEN)
@@ -16,24 +17,25 @@ export default async function main() {
         console.log('⚡️ Slack app is running!');
     })();
 
-    // render the client page
-    expressApp.get('/', (_req, res) => {
-        //todo: serve the installation button element
-        return res.send('<button type="button" onClick="alert(\'Hello World\')">Greet</button>');
-    });
-
-    expressApp.get('/slack/oauth_redirect', (req, res) => {
-        //todo: add OAuth redirect handler
-        //todo: add a remote database to store authenticated workspaces
-        console.warn('OAuth redirection not implemented!');
-    });
-
     // handle home tab
     slackBoltApp.event('app_home_opened', Controllers.displayAppHomeTab);
 
     // handle public channel message events
     slackBoltApp.message(Middleware.preventBotMessages, Middleware.messageHasTimeRef, Controllers.promptMsgDateConvert);
 
+    await messageActionHandler(slackBoltApp);
+
+    slackBoltApp.error(async (error) => {
+        //todo: Check the details of the error to handle cases where you should retry sending a message or stop the app
+        console.error(error);
+    });
+}
+
+/**
+ * Function for grouping all action handlers sent by intractable blocks in messages and views
+ * @param slackBoltApp instance of the slack application
+ */
+const messageActionHandler = async (slackBoltApp: App) => {
     // handle confirmation message options
     slackBoltApp.action({ action_id: 'convert_date' }, Controllers.convertTimeInChannel);
 
@@ -42,9 +44,4 @@ export default async function main() {
         await ack();
         await respond({ delete_original: true });
     });
-
-    slackBoltApp.error(async (error) => {
-        //todo: Check the details of the error to handle cases where you should retry sending a message or stop the app
-        console.error(error);
-    });
-}
+};
