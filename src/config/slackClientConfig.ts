@@ -2,6 +2,7 @@ import botPermissionScope from './token-scope.json';
 import type { AppOptions } from '@slack/bolt';
 import { LogLevel } from '@slack/bolt';
 
+// if process.env.SLACK_BOT_TOKEN is undefined, the client will run in authentication installation mode
 //todo: token and scopes must be set by the user installing this app
 const clientConfig = {
     clientId: process.env.SLACK_CLIENT_ID,
