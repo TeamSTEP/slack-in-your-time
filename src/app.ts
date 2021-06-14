@@ -5,7 +5,7 @@ import type { App } from '@slack/bolt';
 
 export default async function main() {
     if (!process.env.SLACK_SIGNING_SECRET || !process.env.SLACK_CLIENT_ID)
-        throw new Error('No Slack bot token was detected from the environment, please provide one');
+        throw new Error('No Slack client signature was detected from the environment, please provide one');
 
     // parse the environmental variable of the port number from string or use the default port number
     const ENV_PORT = (process.env.PORT && Number.parseInt(process.env.PORT)) || 3000;
