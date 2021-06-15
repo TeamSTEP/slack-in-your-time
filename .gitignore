@@ -148,4 +148,4 @@ pinegrow.json
 
 # End of https://www.toptal.com/developers/gitignore/api/node,visualstudiocode,yarn
 
-firebase-cred.json
+.data

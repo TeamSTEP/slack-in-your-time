@@ -3,11 +3,11 @@ import type { InstallationStore } from '@slack/bolt';
 import clientConfig from '../config/slackClientConfig';
 import { db } from './firebaseClient';
 
-const INSTALLATION_PATH = 'slack-client/workspaces';
+const INSTALLATION_PATH = 'slack-workspaces';
 
 const installStoreHandler: InstallationStore = {
     storeInstallation: async (installation) => {
-        console.log(installation);
+        //console.log(installation);
         const workspaceCred = db.collection(INSTALLATION_PATH).doc();
 
         if (installation.isEnterpriseInstall && installation.enterprise !== undefined) {
@@ -17,7 +17,7 @@ const installStoreHandler: InstallationStore = {
             };
             // support for org wide app installation
             await workspaceCred.set(installObject);
-
+            return;
             // return await database.setData(installation.enterprise.id, { installation });
         }
         if (installation.team !== undefined) {
@@ -27,13 +27,13 @@ const installStoreHandler: InstallationStore = {
             };
             // single team app installation
             await workspaceCred.set(installObject);
-
+            return;
             // return await database.setData(installation.team.id, { installation });
         }
         throw new Error('Failed saving installation data to installationStore');
     },
     fetchInstallation: async (installQuery) => {
-        console.log(installQuery);
+        //console.log(installQuery);
 
         if (installQuery.isEnterpriseInstall && installQuery.enterpriseId !== undefined) {
             const installation = db.collection(INSTALLATION_PATH).doc(installQuery.enterpriseId);
@@ -58,7 +58,7 @@ const slackBoltApp = new App({
     installationStore: !clientConfig.token ? installStoreHandler : undefined,
     installerOptions: {
         authVersion: 'v2',
-        userScopes: clientConfig.scopes,
+        //userScopes: clientConfig.scopes,
     },
 });
 
