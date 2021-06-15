@@ -50,6 +50,7 @@
         "axios": "^0.21.1",
         "chrono-node": "^2.2.7",
         "express": "^4.17.1",
+        "firebase-admin": "^9.9.0",
         "lodash": "^4.17.21",
         "moment-timezone": "^0.5.33",
         "reflect-metadata": "^0.1.13"
