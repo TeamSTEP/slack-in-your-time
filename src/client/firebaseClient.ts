@@ -4,6 +4,7 @@ import * as admin from 'firebase-admin';
 const PROJ_ID = 'slack-in-your-time';
 
 // initialize firebase in order to access its services
+// note: the env var for `GOOGLE_APPLICATION_CREDENTIALS` must be set (see: https://firebase.google.com/docs/admin/setup#initialize-sdk)
 const firebaseApp = admin.initializeApp({
     credential: admin.credential.applicationDefault(),
     databaseURL: `https://${PROJ_ID}.firebaseio.com`,

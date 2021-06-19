@@ -17,6 +17,7 @@ const installStoreHandler: InstallationStore = {
             };
             // support for org wide app installation
             await workspaceCred.set(installObject);
+            console.log('installed bot on a enterprise workspace ' + installation.enterprise.id);
             return;
             // return await database.setData(installation.enterprise.id, { installation });
         }
@@ -27,6 +28,7 @@ const installStoreHandler: InstallationStore = {
             };
             // single team app installation
             await workspaceCred.set(installObject);
+            console.log('installed bot on a team workspace ' + installation.team.id);
             return;
             // return await database.setData(installation.team.id, { installation });
         }
@@ -37,11 +39,13 @@ const installStoreHandler: InstallationStore = {
 
         if (installQuery.isEnterpriseInstall && installQuery.enterpriseId !== undefined) {
             const installation = db.collection(INSTALLATION_PATH).doc(installQuery.enterpriseId);
+            console.log('fetching bot credentials for ' + installQuery.enterpriseId);
             // org wide app installation lookup
             return (await installation.get()).data()?.cred;
         }
         if (installQuery.teamId !== undefined) {
             const installation = db.collection(INSTALLATION_PATH).doc(installQuery.teamId);
+            console.log('fetching bot credentials for ' + installQuery.teamId);
             // single team app installation lookup
             return (await installation.get()).data()?.cred;
         }
