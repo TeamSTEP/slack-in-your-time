@@ -12,6 +12,8 @@ const firebaseApp = admin.initializeApp({
 
 // initialize the database and collections
 const db = firebaseApp.firestore();
+// database settings
+db.settings({ ignoreUndefinedProperties: true });
 
 // export them so it can be globally accessed
 export { admin, db };
