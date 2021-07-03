@@ -6,10 +6,11 @@
     "repository": "https://github.com/TeamSTEP/slack-in-your-time.git",
     "homepage": "https://github.com/TeamSTEP/slack-in-your-time",
     "bugs": "https://github.com/TeamSTEP/slack-in-your-time/issues",
+    "main": "dist/index.js",
     "scripts": {
         "test": "NODE_ENV=test jest --verbose --coverage",
         "lint:check": "eslint '*/**/*.{js,ts}'",
-        "start": "node index.js",
+        "start": "node dist/index.js",
         "build": "tsc --project tsconfig.json",
         "clean": "rimraf dist",
         "dev": "NODE_ENV=development ts-node-dev -r dotenv/config src/index.ts",
