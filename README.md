@@ -2,10 +2,10 @@
 
 ![banner](https://user-images.githubusercontent.com/40356749/121809381-86492280-cc97-11eb-9848-c4cdeb0c5f18.jpg)
 
-> This app is still under development.
-> Expect a lot of changes to happen before it's published to Slack.
+> This app is still under heavy development.
+> Expect a lot of changes to happen before it's officially published to Slack.
 
-[![install-button](https://platform.slack-edge.com/img/add_to_slack.png)](https://slack.com/oauth/v2/authorize?client_id=1048776341958.1317785523734&scope=app_mentions:read,channels:history,channels:read,chat:write,chat:write.public,groups:history,groups:read,groups:write,im:history,incoming-webhook,mpim:history,team:read,users.profile:read,users:read&redirect_uri=https://siyt-app.teamstep.io/slack/oauth_redirect)
+[![install-button](https://platform.slack-edge.com/img/add_to_slack.png)](https://siyt-app.teamstep.io/slack/install)
 
 ## Introduction
 
