@@ -14,18 +14,34 @@ export const appHomeBlock = (props: HomeBlockProps) => {
             type: 'header',
             text: {
                 type: 'plain_text',
-                text: 'Slack in Your Time Debugger',
-                emoji: true,
+                text: 'Slack In Your Time Home',
             },
         },
         {
-            type: 'divider',
+            type: 'section',
+            text: {
+                type: 'plain_text',
+                text: `Welcome <@${props.userId}>. Your local time is ${time.toString()}`,
+                emoji: true,
+            },
         },
         {
             type: 'section',
             text: {
                 type: 'mrkdwn',
-                text: `Local time <@${props.userId}>: ${time.toString()}`,
+                text: 'This application is still working in progress. If you encounter any issues, please consider opening a bug report in Github.\nThank you for your support!',
+            },
+            accessory: {
+                type: 'button',
+                text: {
+                    type: 'plain_text',
+                    text: 'Open Bug Report',
+                    emoji: true,
+                },
+                style: 'danger',
+                value: 'clicked_open_issue',
+                url: 'https://github.com/TeamSTEP/slack-in-your-time/issues/new',
+                action_id: 'button-action',
             },
         },
     ];

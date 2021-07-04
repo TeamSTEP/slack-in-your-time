@@ -52,9 +52,9 @@
         "@slack/bolt": "^3.4.0",
         "@slack/web-api": "^6.2.4",
         "axios": "^0.21.1",
-        "chrono-node": "^2.2.7",
+        "chrono-node": "^2.3.0",
         "express": "^4.17.1",
-        "firebase-admin": "^9.9.0",
+        "firebase-admin": "^9.10.0",
         "lodash": "^4.17.21",
         "moment-timezone": "^0.5.33",
         "reflect-metadata": "^0.1.13"
