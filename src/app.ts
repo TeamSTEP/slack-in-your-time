@@ -18,10 +18,27 @@ export default async function main() {
     })();
 
     // handle home tab
-    slackBoltApp.event('app_home_opened', Controllers.displayAppHomeTab);
+    slackBoltApp.event(
+        'app_home_opened',
+        async ({ body, context, next }) => {
+            // note: a simple debugging middleware
+            console.log(`[Opened App Home] ${JSON.stringify({ body, context })}`);
+            next && (await next());
+        },
+        Controllers.displayAppHomeTab,
+    );
 
     // handle public channel message events
-    slackBoltApp.message(Middleware.preventBotMessages, Middleware.messageHasTimeRef, Controllers.promptMsgDateConvert);
+    slackBoltApp.message(
+        async ({ body, context, next }) => {
+            // note: a simple debugging middleware
+            console.log(`[Message Event] ${JSON.stringify({ body, context })}`);
+            next && (await next());
+        },
+        Middleware.preventBotMessages,
+        Middleware.messageHasTimeRef,
+        Controllers.promptMsgDateConvert,
+    );
 
     await messageActionHandler(slackBoltApp);
 

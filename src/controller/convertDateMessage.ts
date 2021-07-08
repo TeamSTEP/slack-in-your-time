@@ -7,6 +7,7 @@ import {
 } from '@slack/bolt';
 import { EventContext } from '../model';
 import * as Helpers from '../helper';
+import * as Views from '../view';
 import _ from 'lodash';
 import moment from 'moment-timezone';
 
@@ -19,12 +20,13 @@ export const promptMsgDateConvert: Middleware<SlackEventMiddlewareArgs<'message'
     try {
         // the message property should have been passed by the previous middleware
         if (!context.message) throw new Error('Message context was not found');
-        if (!context.botToken) throw new Error('No bot message provided!');
+        if (!context.botToken)
+            throw new Error('No bot token was found. Please check the database status or the environmental variable');
 
         const msgWithTime = context.message as EventContext.MessageTimeContext;
-        const channel = body.event.channel;
+        const currentChannel = body.event.channel;
 
-        const channelMembers = await Helpers.getConversationMembers(channel, context.botToken);
+        const channelMembers = await Helpers.getConversationMembers(currentChannel, context.botToken);
 
         // filter out the timezone that is same as the sender
         const channelTimezones = _.filter(
@@ -34,12 +36,12 @@ export const promptMsgDateConvert: Middleware<SlackEventMiddlewareArgs<'message'
 
         // there must be at least more than one different timezones in a given channel
         if (channelMembers.length > 0 && channelTimezones.length > 0) {
-            const confirmationForm = Helpers.userConfirmationMsgBox(msgWithTime, channelTimezones);
+            const confirmationForm = Views.userConfirmationMsgBox(msgWithTime, channelTimezones);
 
             await Helpers.sendEphemeralMessage({
                 text: 'confirmation message',
                 blocks: confirmationForm,
-                channel,
+                channel: currentChannel,
                 user: msgWithTime.senderId,
                 token: context.botToken,
             });
@@ -56,7 +58,6 @@ export const convertTimeInChannel: Middleware<SlackActionMiddlewareArgs<BlockAct
     body,
     ack,
     respond,
-    payload,
     say,
 }) => {
     const action = 'convert_date';
@@ -74,11 +75,10 @@ export const convertTimeInChannel: Middleware<SlackActionMiddlewareArgs<BlockAct
             payload: string[]; // list of timezone labels
         };
 
+        // todo: refactor this code so that Slack API calls and time conversion methods are kept separately
         // obtain the full timezone object of the sender
         const senderTimezone = moment.tz.zone(actionData.timeContext.content[0].tz);
         if (!senderTimezone) throw new Error('Failed to get timezone data for ' + actionData.timeContext.content[0].tz);
-
-        console.log(`Convert Time:\n${JSON.stringify({ payload, body, actionData })}`);
 
         // filter out the timezone that is same as the sender
         const channelTimezones = _.filter(actionData.payload, (i) => i !== senderTimezone.name);
@@ -98,12 +98,14 @@ export const convertTimeInChannel: Middleware<SlackActionMiddlewareArgs<BlockAct
             return localTime;
         });
 
-        const messageContent = Helpers.displayConvertedTimes(senderTimezone, convertedTimes);
-        console.log(JSON.stringify(messageContent));
+        const messageContent = Views.convertedTimesBlock(senderTimezone, convertedTimes);
+
+        // remove the confirmation message
         await respond({
             delete_original: true,
         });
 
+        // send a message with the converted times
         await say({
             text: 'time conversion message',
             blocks: messageContent,

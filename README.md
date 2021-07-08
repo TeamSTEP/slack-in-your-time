@@ -20,7 +20,7 @@ That is why we decided to make this Slack app.
 
 ## Feature
 
-![sample](https://user-images.githubusercontent.com/40356749/121809399-94973e80-cc97-11eb-8e62-13ea6c1e4bd9.jpg)
+![bot-test-img](https://user-images.githubusercontent.com/40356749/124895038-3ab33b80-dfed-11eb-998c-612f3b882c42.jpg)
 
 This application is powered by the wonderful library for NLP date parsing that is [chrono](https://github.com/wanasit/chrono) and [bolt-js](https://github.com/SlackAPI/bolt-js).
 
@@ -28,3 +28,9 @@ Once you install this app to your Slack channel, it will listen to all text mess
 If your channel member has more than one time zone, this app will ask you if you would like to convert the time from your local time zone to all the member's time zone.
 
 Right now this is done automatically for everyone, but we are planning on adding configurable behaviors like the ability to choose between public messages or messages only visible to the respective members.
+
+## Future Plans
+
+- [ ] Add in-text timezone overriding
+- [ ] Add direct time conversion via App Mentioning or Slash Commands
+- [ ] Add configurable messaging

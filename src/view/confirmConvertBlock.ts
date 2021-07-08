@@ -1,53 +1,6 @@
 import { EventContext } from '../model';
 import _ from 'lodash';
-
-const TIME_DISPLAY_FORMAT = 'MMM Do ddd, h:mm a';
-
-/**
- * Converts the given date object into a unordered list in markdown text string.
- * @param date the date to display
- */
-const dateToUl = (date: EventContext.DateReference) => {
-    return `\n- ${date.start.format(TIME_DISPLAY_FORMAT)}${
-        date.end ? ' ~ ' + date.end.format(TIME_DISPLAY_FORMAT) : ''
-    }`;
-};
-
-//todo: move the message blocks to the view folder
-
-/**
- * Converts the time information into a formatted markdown section block for Slack.
- * @param timezone the timezone label to display
- * @param localTime list of dates to display
- */
-const dateSectionBlock = (timezone: string, localTime: EventContext.DateReference[]) => {
-    const timeUlMd = _.map(localTime, (i) => dateToUl(i));
-    return {
-        type: 'section',
-        text: {
-            type: 'mrkdwn',
-            text: `*${timezone}*${timeUlMd}`,
-        },
-    };
-};
-
-export const displayConvertedTimes = (sourceTime: moment.MomentZone, localTimes: EventContext.DateReference[][]) => {
-    const convertedBlocks = _.map(localTimes, (i) => {
-        return dateSectionBlock(i[0].tz, i);
-    });
-
-    const messageBlock = [
-        {
-            type: 'section',
-            text: {
-                type: 'mrkdwn',
-                text: `Converted time from ${sourceTime.name}`,
-            },
-        },
-        ...convertedBlocks,
-    ];
-    return messageBlock;
-};
+import { dateToUl } from '../helper';
 
 export const userConfirmationMsgBox = <T>(timeContext: EventContext.MessageTimeContext, confirmationPayload: T) => {
     const dateRef = timeContext.content[0];

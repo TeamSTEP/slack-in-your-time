@@ -1,32 +1,31 @@
 import * as chrono from 'chrono-node';
 import moment from 'moment-timezone';
+import type { MomentZone } from 'moment-timezone';
 import _ from 'lodash';
 import { EventContext } from '../model';
-import { GenericMessageEvent } from '@slack/bolt';
 
 /**
  * Parses the given message string to determine the full date that it is referencing to.
  * The result will contain the full moment.js object with the proper timezone.
- * @param messageEvent message event that we want to parse
+ * @param messageText the string message to parse
+ * @param eventTimestamp the timestamp for the event in unix epoch
  * @param senderTz message sender's timezone object
  */
-export const parseTimeReference = (messageEvent: GenericMessageEvent, senderTz: moment.MomentZone) => {
-    const message = messageEvent.text;
-    if (!message) throw new Error('No message was passed to parse');
-    const sentTime = moment.unix(parseInt(messageEvent.ts)).tz(senderTz.name, true);
+export const parseTimeReference = (messageText: string, eventTimestamp: number, senderTz: MomentZone) => {
+    const sentTime = moment.unix(eventTimestamp).tz(senderTz.name, true);
     //const senderTimezone = senderContext.tz.name;
-    const parsedDate = messageToTime(message, sentTime.toDate());
+    const parsedDate = messageToTime(messageText, sentTime.toDate());
 
     // no reference to time in the text
     if (!parsedDate || parsedDate.length < 1) return [];
 
-    const timeContext = _.map(parsedDate, (date) => {
-        const start = moment.tz(date.start.date(), senderTz.name);
-        const end = date.end && moment.tz(date.end.date(), senderTz.name);
+    const timeContext = _.map(parsedDate, (res) => {
+        const start = moment.tz(res.start.date(), senderTz.name);
+        const end = res.end && moment.tz(res.end.date(), senderTz.name);
         const tz = senderTz.name;
 
         return {
-            sourceMsg: message,
+            sourceMsg: messageText,
             start,
             end,
             tz,
@@ -36,8 +35,9 @@ export const parseTimeReference = (messageEvent: GenericMessageEvent, senderTz: 
     return timeContext;
 };
 
-const messageToTime = (msg: string, refDate?: Date) => {
-    const parsedDate = chrono.casual.parse(msg, refDate);
+const messageToTime = (msg: string, sourceDate?: Date) => {
+    // todo: improve this function so that if the message contains a timezone label, we can override the source date
+    const parsedDate = chrono.casual.parse(msg, sourceDate);
 
     return parsedDate;
 };
