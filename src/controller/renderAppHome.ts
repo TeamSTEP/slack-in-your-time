@@ -13,18 +13,16 @@ export const displayAppHomeTab: Middleware<SlackEventMiddlewareArgs<'app_home_op
         })) as Users.InfoResponse;
 
         // generate the home block to render
-        const headerBlock = View.appHomeBlock({ userId, userInfo: userInfo.user });
+        const homeBlock = View.appHomeBlock({ userInfo: userInfo.user });
 
         // send the message block to Slack app home tab
-        const res = await client.views.publish({
+        await client.views.publish({
             user_id: userId,
             view: {
                 type: 'home',
-                blocks: headerBlock,
+                blocks: homeBlock,
             },
         });
-
-        console.log(res);
     } catch (err) {
         console.log(err);
     }

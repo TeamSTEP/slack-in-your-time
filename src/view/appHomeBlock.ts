@@ -2,13 +2,14 @@ import { Users } from '../model';
 import moment from 'moment-timezone';
 
 interface HomeBlockProps {
-    userId: string;
     userInfo: Users.User;
 }
 
 export const appHomeBlock = (props: HomeBlockProps) => {
-    const timezone = props.userInfo.tz_label;
-    const time = moment(timezone);
+    const timezone = props.userInfo.tz || moment.tz.guess();
+
+    const time = moment.tz(Date.now(), timezone);
+    // todo: make the app home block content be more useful
     return [
         {
             type: 'header',
@@ -21,7 +22,7 @@ export const appHomeBlock = (props: HomeBlockProps) => {
             type: 'section',
             text: {
                 type: 'plain_text',
-                text: `Welcome <@${props.userId}>. Your local time is ${time.toString()}`,
+                text: `Your local time is ${time.toString()}.`,
                 emoji: true,
             },
         },
@@ -41,7 +42,7 @@ export const appHomeBlock = (props: HomeBlockProps) => {
                 style: 'danger',
                 value: 'clicked_open_issue',
                 url: 'https://github.com/TeamSTEP/slack-in-your-time/issues/new',
-                action_id: 'button-action',
+                action_id: 'btn-issue-action',
             },
         },
     ];
