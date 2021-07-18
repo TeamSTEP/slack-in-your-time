@@ -31,11 +31,10 @@ export const messageHasTimeRef: Middleware<SlackEventMiddlewareArgs<'message'>> 
         // note: we disable non-null assertion rules because we know Slack timezones are the same as moment tz
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const senderTimezone = moment.tz.zone(userInfo.user.tz || 'Etc/GMT')!;
-        const msgTimestamp = moment.unix(body.event_time);
         const msgText = body.event.text;
         if (!msgText) throw new Error('Could not find any text for event ' + body.event_id);
 
-        const parsedTime = Helpers.parseTimeReference(msgText, msgTimestamp.unix(), senderTimezone);
+        const parsedTime = Helpers.parseTimeReference(msgText, body.event_time, senderTimezone.name);
 
         if (!parsedTime)
             throw new Error(`Message ${body.event_id} does not mention any date.\nFull message: ${msgText}`);
@@ -44,7 +43,7 @@ export const messageHasTimeRef: Middleware<SlackEventMiddlewareArgs<'message'>> 
             senderId: body.event.user,
             sentChannel: body.event.channel,
             content: parsedTime,
-            sentTime: msgTimestamp, // UTC
+            sentTime: moment.unix(body.event_time).utc(), // epoch time in seconds
         } as EventContext.MessageTimeContext;
 
         context.message = messageMeta;

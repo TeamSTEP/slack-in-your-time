@@ -76,8 +76,6 @@ const stateStoreHandler: StateStore = {
 const slackBoltApp = new App({
     ...clientConfig,
     // only pass the installation store if a bot token was not provided
-    // todo: make a secure state secret value
-    // stateSecret: !clientConfig.token ? 'my-test-state' : undefined,
     installationStore: !clientConfig.token ? installStoreHandler : undefined,
     installerOptions: {
         authVersion: SLACK_AUTH_VERSION,
