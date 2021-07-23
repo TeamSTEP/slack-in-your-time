@@ -1,21 +1,22 @@
 import * as Middleware from './middleware';
 import * as Controllers from './controller';
-import { slackBoltApp } from './client';
+import { initializeSlackClient, initializeFirebase } from './client';
 import type { App } from '@slack/bolt';
 
 export default async function main() {
     if (!process.env.SLACK_SIGNING_SECRET || !process.env.SLACK_CLIENT_ID)
         throw new Error('No Slack client signature was detected from the environment, please provide one');
 
+    const { db } = initializeFirebase();
+    const { slackBoltApp } = initializeSlackClient(db);
+
     // parse the environmental variable of the port number from string or use the default port number
     const ENV_PORT = (process.env.PORT && Number.parseInt(process.env.PORT)) || 3000;
 
-    (async () => {
-        // start the app
-        await slackBoltApp.start(ENV_PORT);
+    // start the app
+    await slackBoltApp.start(ENV_PORT);
 
-        console.log('⚡️ Slack app is running!');
-    })();
+    console.log('⚡️ Slack app is running!');
 
     // handle home tab
     slackBoltApp.event(
@@ -40,8 +41,10 @@ export default async function main() {
         Controllers.promptMsgDateConvert,
     );
 
+    // handle message actions
     await messageActionHandler(slackBoltApp);
 
+    // error logging
     slackBoltApp.error(async (error) => {
         //todo: Check the details of the error to handle cases where you should retry sending a message or stop the app
         console.error(error);

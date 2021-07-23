@@ -2,18 +2,24 @@ import { Users, Conversations } from '../model';
 import * as Helpers from '.';
 import _ from 'lodash';
 import type { ChatPostEphemeralArguments } from '@slack/web-api';
-import { slackWebClient } from '../client';
+import { slackWebApiClient } from '../client';
 
 export const getConversationMembers = async (conversationId: string, callToken: string) => {
+    if (typeof slackWebApiClient === 'undefined') {
+        throw new Error('Slack web client not initialized!');
+    }
+
     // array of member IDs (ex: U015Y14JKME)
-    const { members } = (await slackWebClient.conversations.members({
+    const { members } = (await slackWebApiClient.conversations.members({
         token: callToken,
         channel: conversationId,
     })) as Conversations.MembersResponse;
 
     const membersInfo = await Promise.all(
         members.map(async (user) => {
-            const info = (await slackWebClient.users.info({
+            // the check in the first line in the function ensures that it is not undefined
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            const info = (await slackWebApiClient!.users.info({
                 token: callToken,
                 user: user,
                 include_locale: true,
@@ -39,6 +45,9 @@ export const getConversationMembers = async (conversationId: string, callToken: 
  * @param args POST request arguments
  */
 export const sendEphemeralMessage = async (args: ChatPostEphemeralArguments) => {
-    const res = await slackWebClient.chat.postEphemeral(args);
+    if (typeof slackWebApiClient === 'undefined') {
+        throw new Error('Slack web client not initialized!');
+    }
+    const res = await slackWebApiClient.chat.postEphemeral(args);
     return res;
 };

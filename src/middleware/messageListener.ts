@@ -1,7 +1,7 @@
 import { Middleware, SlackEventMiddlewareArgs } from '@slack/bolt';
 import { Users, EventContext } from '../model';
 import * as Helpers from '../helper';
-import { slackWebClient } from '../client';
+import { slackWebApiClient } from '../client';
 import moment from 'moment-timezone';
 
 /**
@@ -19,10 +19,14 @@ export const preventBotMessages: Middleware<SlackEventMiddlewareArgs<'message'>>
 export const messageHasTimeRef: Middleware<SlackEventMiddlewareArgs<'message'>> = async ({ body, context, next }) => {
     try {
         // note: a normal message submission should have a subtype of undefined
-        if (body.event.subtype || !body.event.text)
+        if (body.event.subtype || !body.event.text) {
             throw new Error(`Message ${body.event_id} does not have any content`);
+        }
 
-        const userInfo = (await slackWebClient.users.info({
+        if (typeof slackWebApiClient === 'undefined') {
+            throw new Error('Slack web client not initialized!');
+        }
+        const userInfo = (await slackWebApiClient.users.info({
             token: context.botToken,
             user: body.event.user,
             include_locale: true,

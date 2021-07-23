@@ -22,6 +22,6 @@ describe('read time from message', () => {
         expect(parsedTime.start.format(dateFormat)).toEqual('2021-05-02 02:00 PM');
 
         expect(casualParse[0].start.date()).toEqual(3);
-        expect(casualParse[0].end.date()).toEqual(9);
+        expect(casualParse[0].end?.date()).toEqual(9);
     });
 });
