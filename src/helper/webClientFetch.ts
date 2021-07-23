@@ -1,6 +1,5 @@
 import { Users, Conversations } from '../model';
 import * as Helpers from '.';
-import _ from 'lodash';
 import type { ChatPostEphemeralArguments } from '@slack/web-api';
 import { slackWebApiClient } from '../client';
 

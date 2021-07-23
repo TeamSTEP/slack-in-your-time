@@ -7,26 +7,25 @@ import { EventContext } from '../model';
  * Parses the given message string to determine the full date that it is referencing to.
  * The result will contain the full moment.js object with the proper timezone.
  * @param messageText the string message to parse
- * @param eventTimestamp the timestamp for the event in unix epoch
+ * @param sentTime the time when the event was sent. This is the event timestamp in unix epoch
  * @param senderTimezone the sender's timezone string label available in moment-timezone package https://github.com/moment/moment-timezone/blob/develop/data/packed/latest.json
  */
-export const parseTimeReference = (messageText: string, eventTimestamp: number, senderTimezone: string) => {
-    // get sent time as UTC first
-    const sentTime = moment.unix(eventTimestamp).utc();
-    const parsedDate = messageToTime(messageText, sentTime.toDate());
+export const parseTimeReference = (messageText: string, sentTime: number, senderTimezone: string) => {
+    // sent time with locale
+    const sentTimeString = moment.unix(sentTime).tz(senderTimezone).toLocaleString();
+
+    const parsedDate = messageToTime(messageText, new Date(sentTimeString));
 
     // no reference to time in the text
     if (!parsedDate || parsedDate.length < 1) return [];
 
     const timeContext = _.map(parsedDate, (res) => {
-        const start = moment(res.start.date()).tz(senderTimezone);
-        const end = res.end && moment(res.end.date()).tz(senderTimezone);
+        const start = res.start.date();
         const tz = senderTimezone;
 
         return {
             sourceMsg: messageText,
             start,
-            end,
             tz,
         } as EventContext.LocalDateReference;
     });

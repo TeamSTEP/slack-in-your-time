@@ -86,12 +86,10 @@ export const convertTimeInChannel: Middleware<SlackActionMiddlewareArgs<BlockAct
         const convertedTimes = channelTimezones.map((tz) => {
             // convert the date referenced in the message to the channel member's local time
             const localTime = actionData.timeContext.content.map((i) => {
-                const start = moment(i.start).tz(tz);
-                const end = i.end && moment(i.end).tz(tz);
+                const start = moment(i.start).tz(tz).toDate();
 
                 return {
                     start,
-                    end,
                     tz,
                 } as EventContext.DateReference;
             });

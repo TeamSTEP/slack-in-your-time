@@ -47,7 +47,7 @@ export const messageHasTimeRef: Middleware<SlackEventMiddlewareArgs<'message'>> 
             senderId: body.event.user,
             sentChannel: body.event.channel,
             content: parsedTime,
-            sentTime: moment.unix(body.event_time).utc(), // epoch time in seconds
+            sentTime: body.event_time, // epoch time in seconds
         } as EventContext.MessageTimeContext;
 
         context.message = messageMeta;
