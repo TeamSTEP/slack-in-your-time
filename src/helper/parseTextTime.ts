@@ -35,7 +35,7 @@ export const parseTimeReference = (messageText: string, sentTime: number, sender
 
 const messageToTime = (msg: string, sourceDate?: Date) => {
     // todo: improve this function so that if the message contains a timezone label, we can override the source date
-    const parsedDate = chrono.en.casual.parse(msg, sourceDate);
+    const parsedDate = chrono.casual.parse(msg, sourceDate);
 
     return parsedDate;
 };

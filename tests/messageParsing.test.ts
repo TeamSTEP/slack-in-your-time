@@ -8,6 +8,7 @@ const formatDateString = (date: Date) => {
     return parsedDate.format(DATE_FORMAT);
 };
 
+// todo: add a mock Slack application instance for sending packets and listening to responses
 beforeAll(() => {
     process.env.SLACK_SIGNING_SECRET = 'my-test-secret';
     process.env.SLACK_BOT_TOKEN = 'my-test-token';
