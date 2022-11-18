@@ -56,7 +56,7 @@
         "express": "^4.17.1",
         "firebase-admin": "^9.10.0",
         "lodash": "^4.17.21",
-        "moment-timezone": "^0.5.33",
+        "moment-timezone": "^0.5.35",
         "reflect-metadata": "^0.1.13"
     },
     "engines": {
