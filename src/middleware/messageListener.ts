@@ -55,7 +55,7 @@ export const messageHasTimeRef: Middleware<SlackEventMiddlewareArgs<'message'>> 
         // Pass control to the next middleware function
         next && (await next());
     } catch (err) {
-        console.log(err.message);
+        console.log(err);
     }
 };
 
