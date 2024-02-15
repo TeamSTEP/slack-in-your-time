@@ -47,7 +47,7 @@ export const promptMsgDateConvert: Middleware<SlackEventMiddlewareArgs<'message'
             });
         }
     } catch (err) {
-        console.log(err);
+        console.log((err as Error).message);
     }
 };
 
@@ -110,6 +110,6 @@ export const convertTimeInChannel: Middleware<SlackActionMiddlewareArgs<BlockAct
         });
     } catch (err) {
         console.error(err);
-        await respond({ text: `*[Error]* ${err}`, replace_original: true });
+        await respond({ text: `*[Error]* ${(err as Error).message}`, replace_original: true });
     }
 };
