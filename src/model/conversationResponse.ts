@@ -1,5 +1,5 @@
-import { WebAPICallResult } from '@slack/web-api';
+import { webApi } from '@slack/bolt';
 
-export interface MembersResponse extends WebAPICallResult {
+export interface MembersResponse extends webApi.WebAPICallResult {
     members: string[];
 }

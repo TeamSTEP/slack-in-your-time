@@ -1,7 +1,6 @@
 import { Middleware, SlackEventMiddlewareArgs } from '@slack/bolt';
 import { Users, EventContext } from '../model';
 import * as Helpers from '../helper';
-import { slackWebApiClient } from '../client';
 import moment from 'moment-timezone';
 
 /**
@@ -16,17 +15,18 @@ export const preventBotMessages: Middleware<SlackEventMiddlewareArgs<'message'>>
 /**
  * Listener middleware that checks if the message sent contains a string that references time.
  */
-export const messageHasTimeRef: Middleware<SlackEventMiddlewareArgs<'message'>> = async ({ body, context, next }) => {
+export const messageHasTimeRef: Middleware<SlackEventMiddlewareArgs<'message'>> = async ({
+    body,
+    context,
+    client,
+    next,
+}) => {
     try {
-        // note: a normal message submission should have a subtype of undefined
         if (body.event.subtype || !body.event.text) {
             throw new Error(`Message ${body.event_id} does not have any content`);
         }
 
-        if (typeof slackWebApiClient === 'undefined') {
-            throw new Error('Slack web client not initialized!');
-        }
-        const userInfo = (await slackWebApiClient.users.info({
+        const userInfo = (await client.users.info({
             token: context.botToken,
             user: body.event.user,
             include_locale: true,
@@ -47,12 +47,11 @@ export const messageHasTimeRef: Middleware<SlackEventMiddlewareArgs<'message'>> 
             senderId: body.event.user,
             sentChannel: body.event.channel,
             content: parsedTime,
-            sentTime: body.event_time, // epoch time in seconds
+            sentTime: body.event_time,
         } as EventContext.MessageTimeContext;
 
         context.message = messageMeta;
 
-        // Pass control to the next middleware function
         next && (await next());
     } catch (err) {
         console.log((err as Error).message);

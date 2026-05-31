@@ -1,4 +1,4 @@
-import { WebAPICallResult } from '@slack/web-api';
+import { webApi } from '@slack/bolt';
 
 interface Profile {
     title: string;
@@ -52,10 +52,10 @@ export interface User {
     locale: string;
 }
 
-export interface ListResponse extends WebAPICallResult {
+export interface ListResponse extends webApi.WebAPICallResult {
     members: User[];
 }
 
-export interface InfoResponse extends WebAPICallResult {
+export interface InfoResponse extends webApi.WebAPICallResult {
     user: User;
 }

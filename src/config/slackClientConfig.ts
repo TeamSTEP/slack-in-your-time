@@ -11,9 +11,8 @@ const clientConfig = {
     signingSecret: process.env.SLACK_SIGNING_SECRET,
     clientSecret: process.env.SLACK_CLIENT_SECRET,
     token: process.env.SLACK_BOT_TOKEN,
-    developerMode: process.env.NODE_ENV === 'development',
     scopes: botPermissionScope,
-    logLevel: LogLevel.DEBUG,
+    logLevel: process.env.NODE_ENV === 'development' ? LogLevel.DEBUG : LogLevel.INFO,
     customRoutes: [healthRoute],
 } as AppOptions;
 
