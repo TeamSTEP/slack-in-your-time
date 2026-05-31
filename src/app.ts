@@ -2,6 +2,7 @@ import * as Middleware from './middleware';
 import * as Controllers from './controller';
 import { createSlackApp, createFirebase } from './client';
 import { loadEnv, createLogger, setLogger, getLogger } from './config';
+import { initWorkspaceSettings } from './service/workspaceSettings';
 import type { App } from '@slack/bolt';
 
 export default async function main() {
@@ -10,6 +11,7 @@ export default async function main() {
     setLogger(logger);
 
     const db = createFirebase(env, logger);
+    initWorkspaceSettings(db, env);
     const { slackBoltApp } = createSlackApp(db, env, logger);
 
     await slackBoltApp.start(env.PORT);
@@ -28,10 +30,16 @@ const registerEventHandlers = (slackBoltApp: App) => {
 
     slackBoltApp.message(Middleware.preventBotMessages, Middleware.messageHasTimeRef, Controllers.promptMsgDateConvert);
 
+    slackBoltApp.event('app_mention', Controllers.handleAppMention);
+
+    slackBoltApp.command('/convert', Controllers.handleConvertCommand);
+
     slackBoltApp.action({ action_id: 'convert_date' }, Controllers.convertTimeInChannel);
 
     slackBoltApp.action({ action_id: 'dismiss_convert' }, async ({ ack, respond }) => {
         await ack();
         await respond({ delete_original: true });
     });
+
+    slackBoltApp.action({ action_id: 'set_conversion_visibility' }, Controllers.updateConversionVisibility);
 };

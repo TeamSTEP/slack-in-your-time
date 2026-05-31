@@ -31,6 +31,6 @@ Right now this is done automatically for everyone, but we are planning on adding
 
 ## Future Plans
 
-- [ ] Add in-text timezone overriding
-- [ ] Add direct time conversion via App Mentioning or Slash Commands
-- [ ] Add configurable messaging
+- [x] Add in-text timezone overriding
+- [x] Add direct time conversion via App Mentioning or Slash Commands
+- [x] Add configurable messaging

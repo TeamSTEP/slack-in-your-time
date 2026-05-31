@@ -10,6 +10,7 @@ const envSchema = z.object({
     GOOGLE_APPLICATION_CREDENTIALS: z.string().optional(),
     FIREBASE_PROJECT_ID: z.string().default('slack-in-your-time'),
     LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).optional(),
+    CONVERSION_MESSAGE_VISIBILITY: z.enum(['public', 'ephemeral']).default('public'),
 });
 
 export type Env = z.infer<typeof envSchema>;
