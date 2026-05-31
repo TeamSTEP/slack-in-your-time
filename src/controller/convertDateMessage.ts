@@ -9,6 +9,7 @@ import { EventContext } from '../model';
 import * as Helpers from '../helper';
 import * as Views from '../view';
 import { getLogger } from '../config';
+import { getWorkspaceSettings } from '../service/workspaceSettings';
 import _ from 'lodash';
 
 /**
@@ -60,6 +61,8 @@ export const convertTimeInChannel: Middleware<SlackActionMiddlewareArgs<BlockAct
     ack,
     respond,
     say,
+    client,
+    context,
 }) => {
     const action = 'convert_date';
     await ack();
@@ -73,26 +76,28 @@ export const convertTimeInChannel: Middleware<SlackActionMiddlewareArgs<BlockAct
         };
 
         const senderTimezone = Helpers.assertValidTimezone(actionData.timeContext.content[0].tz);
-
-        const channelTimezones = _.filter(actionData.payload, (timezone) => timezone !== senderTimezone);
-
-        const convertedTimes = channelTimezones.map((timezone) => {
-            const localTime = actionData.timeContext.content.map((reference) => {
-                const start = Helpers.convertInstantToZone(reference.start, timezone);
-
-                return {
-                    start,
-                    tz: timezone,
-                } as EventContext.DateReference;
-            });
-            return localTime;
-        });
-
+        const convertedTimes = Helpers.convertTimeAcrossChannel(actionData.timeContext, actionData.payload);
         const messageContent = Views.convertedTimesBlock(senderTimezone, convertedTimes);
 
         await respond({
             delete_original: true,
         });
+
+        const teamId = context.teamId ?? body.team?.id ?? '';
+        const settings = await getWorkspaceSettings(teamId);
+        const channel = actionData.timeContext.sentChannel;
+        const userId = actionData.timeContext.senderId;
+
+        if (settings.conversionVisibility === 'ephemeral') {
+            await Helpers.sendEphemeralMessage(client, {
+                text: 'time conversion message',
+                blocks: messageContent,
+                channel,
+                user: userId,
+                token: context.botToken,
+            });
+            return;
+        }
 
         await say({
             text: 'time conversion message',

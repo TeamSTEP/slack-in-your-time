@@ -55,5 +55,3 @@ export const messageHasTimeRef: Middleware<SlackEventMiddlewareArgs<'message'>> 
         getLogger().debug({ err, eventId: body.event_id }, 'Skipping message event');
     }
 };
-
-// todo: add behavior for when the user references the bot with the `@` symbol

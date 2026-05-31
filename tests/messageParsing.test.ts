@@ -1,3 +1,4 @@
+import { detectTimezoneInText } from '../src/helper/detectTimezoneInText';
 import * as Helpers from '../src/helper';
 import { DateTime } from 'luxon';
 
@@ -10,6 +11,26 @@ const formatDateString = (date: Date, zone: string) => {
 beforeAll(() => {
     process.env.SLACK_SIGNING_SECRET = 'my-test-secret';
     process.env.SLACK_BOT_TOKEN = 'my-test-token';
+});
+
+describe('detectTimezoneInText', () => {
+    it('should detect IANA timezone labels in message text', () => {
+        const result = detectTimezoneInText('meeting at 3pm America/New_York tomorrow');
+
+        expect(result?.timezone).toEqual('America/New_York');
+        expect(result?.strippedMessage).toEqual('meeting at 3pm tomorrow');
+    });
+
+    it('should detect common timezone abbreviations', () => {
+        const result = detectTimezoneInText('call at noon EST');
+
+        expect(result?.timezone).toEqual('America/New_York');
+        expect(result?.strippedMessage).toEqual('call at noon');
+    });
+
+    it('should return null when no timezone is present', () => {
+        expect(detectTimezoneInText('meeting at 3pm')).toBeNull();
+    });
 });
 
 describe('read time from message', () => {
@@ -33,6 +54,12 @@ describe('read time from message', () => {
         expect(casualParse).toHaveLength(2);
         expect(DateTime.fromJSDate(casualParse[0].start, { zone: senderTimezoneLabel }).day).toEqual(3);
         expect(DateTime.fromJSDate(casualParse[1].start, { zone: senderTimezoneLabel }).day).toEqual(9);
+    });
+
+    it('should override sender timezone when message includes an explicit zone', () => {
+        const parsedTime = Helpers.parseTimeReference('3pm EST', eventTimestamp, senderTimezoneLabel)[0];
+
+        expect(parsedTime.tz).toEqual('America/New_York');
     });
 });
 
@@ -68,5 +95,27 @@ describe('getUserTimeZones', () => {
         ]);
 
         expect(timezones).toEqual(['Asia/Tokyo', 'America/New_York']);
+    });
+});
+
+describe('convertTimeAcrossChannel', () => {
+    it('should convert parsed times to each channel timezone except the source', () => {
+        const timeContext = {
+            senderId: 'U1',
+            sentChannel: 'C1',
+            sentTime: 0,
+            content: [
+                {
+                    sourceMsg: '3pm',
+                    start: new Date('2021-05-02T18:00:00.000Z'),
+                    tz: 'America/New_York',
+                },
+            ],
+        };
+
+        const converted = Helpers.convertTimeAcrossChannel(timeContext, ['America/New_York', 'Asia/Tokyo']);
+
+        expect(converted).toHaveLength(1);
+        expect(converted[0][0].tz).toEqual('Asia/Tokyo');
     });
 });

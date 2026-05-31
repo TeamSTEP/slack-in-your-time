@@ -4,6 +4,7 @@
     "channels:read",
     "chat:write",
     "chat:write.public",
+    "commands",
     "groups:history",
     "groups:read",
     "groups:write",
