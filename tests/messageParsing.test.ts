@@ -15,19 +15,24 @@ beforeAll(() => {
 });
 
 describe('read time from message', () => {
-    it('should correctly parse the time in the message', () => {
-        const senderTimezoneLabel = 'Asia/Tokyo'; // GMT+9
-        const today = moment('2021-05-02 10:00 AM', DATE_FORMAT, true).tz(senderTimezoneLabel, true);
-        const eventTimestamp = today.clone().utc().unix(); // epoch time in seconds
+    const senderTimezoneLabel = 'Asia/Tokyo';
+    const today = moment('2021-05-02 10:00 AM', DATE_FORMAT, true).tz(senderTimezoneLabel, true);
+    const eventTimestamp = today.clone().utc().unix();
 
-        const ambiguousMsg = '2 PM';
-        const casualMsg = 'from tomorrow after noon until next week';
-
-        const parsedTime = Helpers.parseTimeReference(ambiguousMsg, eventTimestamp, senderTimezoneLabel)[0];
-        const casualParse = Helpers.parseTimeReference(casualMsg, eventTimestamp, senderTimezoneLabel);
+    it('should parse an ambiguous time reference relative to the event timestamp', () => {
+        const parsedTime = Helpers.parseTimeReference('2 PM', eventTimestamp, senderTimezoneLabel)[0];
 
         expect(formatDateString(parsedTime.start)).toEqual('2021-05-02 02:00 PM');
+    });
 
+    it('should parse multiple explicit dates in a single message', () => {
+        const casualParse = Helpers.parseTimeReference(
+            'May 3 at noon and May 9 at 3pm',
+            eventTimestamp,
+            senderTimezoneLabel,
+        );
+
+        expect(casualParse).toHaveLength(2);
         expect(moment(casualParse[0].start).date()).toEqual(3);
         expect(moment(casualParse[1].start).date()).toEqual(9);
     });
