@@ -1,15 +1,15 @@
+import { DateTime } from 'luxon';
 import { Users } from '../model';
-import moment from 'moment-timezone';
+import { getLocalTimezone } from '../helper/timezone';
 
 interface HomeBlockProps {
     userInfo: Users.User;
 }
 
 export const appHomeBlock = (props: HomeBlockProps) => {
-    const timezone = props.userInfo.tz || moment.tz.guess();
+    const timezone = props.userInfo.tz || getLocalTimezone();
+    const time = DateTime.now().setZone(timezone);
 
-    const time = moment.tz(Date.now(), timezone);
-    // todo: make the app home block content be more useful
     return [
         {
             type: 'header',

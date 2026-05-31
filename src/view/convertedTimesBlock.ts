@@ -18,18 +18,17 @@ const dateSectionBlock = (timezone: string, localTime: EventContext.DateReferenc
     };
 };
 
-export const convertedTimesBlock = (sourceTime: moment.MomentZone, localTimes: EventContext.DateReference[][]) => {
-    const convertedBlocks = _.map(localTimes, (i) => {
-        return dateSectionBlock(i[0].tz, i);
+export const convertedTimesBlock = (sourceTimezone: string, localTimes: EventContext.DateReference[][]) => {
+    const convertedBlocks = _.map(localTimes, (entries) => {
+        return dateSectionBlock(entries[0].tz, entries);
     });
 
-    // todo: add the actual time alongside the timezone name for better UX
     const messageBlock = [
         {
             type: 'section',
             text: {
                 type: 'mrkdwn',
-                text: `Converted time from ${sourceTime.name}`,
+                text: `Converted time from ${sourceTimezone}`,
             },
         },
         ...convertedBlocks,

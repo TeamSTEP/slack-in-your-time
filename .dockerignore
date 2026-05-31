@@ -2,3 +2,10 @@ node_modules
 dist
 .data
 .env
+.git
+.github
+coverage
+tests
+ci
+*.md
+secrets

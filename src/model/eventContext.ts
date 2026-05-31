@@ -1,6 +1,6 @@
 export interface DateReference {
     start: Date; // date should be in local time (including GMT offset)
-    tz: string; // time zone abbreviation symbol (https://www.timeanddate.com/time/zones/) or from the moment timezone library (https://github.com/moment/moment-timezone/blob/develop/data/packed/latest.json)
+    tz: string; // IANA timezone identifier (e.g. Asia/Tokyo)
 }
 
 export interface LocalDateReference extends DateReference {

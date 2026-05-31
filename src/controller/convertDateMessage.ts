@@ -9,7 +9,6 @@ import { EventContext } from '../model';
 import * as Helpers from '../helper';
 import * as Views from '../view';
 import _ from 'lodash';
-import moment from 'moment-timezone';
 
 /**
  * Send a ephemeral message to the message sender to ask them if they want to convert their time.
@@ -32,8 +31,8 @@ export const promptMsgDateConvert: Middleware<SlackEventMiddlewareArgs<'message'
         const channelMembers = await Helpers.getConversationMembers(client, currentChannel, context.botToken);
 
         const channelTimezones = _.filter(
-            Helpers.getUserTimeZones(channelMembers).map((tz) => tz.name),
-            (i) => i !== msgWithTime.content[0].tz,
+            Helpers.getUserTimeZones(channelMembers),
+            (timezone) => timezone !== msgWithTime.content[0].tz,
         );
 
         if (channelMembers.length > 0 && channelTimezones.length > 0) {
@@ -72,18 +71,17 @@ export const convertTimeInChannel: Middleware<SlackActionMiddlewareArgs<BlockAct
             payload: string[];
         };
 
-        const senderTimezone = moment.tz.zone(actionData.timeContext.content[0].tz);
-        if (!senderTimezone) throw new Error('Failed to get timezone data for ' + actionData.timeContext.content[0].tz);
+        const senderTimezone = Helpers.assertValidTimezone(actionData.timeContext.content[0].tz);
 
-        const channelTimezones = _.filter(actionData.payload, (i) => i !== senderTimezone.name);
+        const channelTimezones = _.filter(actionData.payload, (timezone) => timezone !== senderTimezone);
 
-        const convertedTimes = channelTimezones.map((tz) => {
-            const localTime = actionData.timeContext.content.map((i) => {
-                const start = moment(i.start).tz(tz).toDate();
+        const convertedTimes = channelTimezones.map((timezone) => {
+            const localTime = actionData.timeContext.content.map((reference) => {
+                const start = Helpers.convertInstantToZone(reference.start, timezone);
 
                 return {
                     start,
-                    tz,
+                    tz: timezone,
                 } as EventContext.DateReference;
             });
             return localTime;

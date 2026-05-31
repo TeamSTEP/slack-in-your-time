@@ -1,7 +1,6 @@
 import { Middleware, SlackEventMiddlewareArgs } from '@slack/bolt';
 import { Users, EventContext } from '../model';
 import * as Helpers from '../helper';
-import moment from 'moment-timezone';
 
 /**
  * Listener middleware that filters out messages with the `bot_message` subtype.
@@ -32,13 +31,11 @@ export const messageHasTimeRef: Middleware<SlackEventMiddlewareArgs<'message'>> 
             include_locale: true,
         })) as Users.InfoResponse;
 
-        // note: we disable non-null assertion rules because we know Slack timezones are the same as moment tz
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        const senderTimezone = moment.tz.zone(userInfo.user.tz || 'Etc/GMT')!;
+        const senderTimezone = Helpers.resolveTimezone(userInfo.user.tz);
         const msgText = body.event.text;
         if (!msgText) throw new Error('Could not find any text for event ' + body.event_id);
 
-        const parsedTime = Helpers.parseTimeReference(msgText, body.event_time, senderTimezone.name);
+        const parsedTime = Helpers.parseTimeReference(msgText, body.event_time, senderTimezone);
 
         if (!parsedTime)
             throw new Error(`Message ${body.event_id} does not mention any date.\nFull message: ${msgText}`);

@@ -1,0 +1,30 @@
+services:
+  slack-in-your-time:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: slack-in-your-time
+    restart: unless-stopped
+    ports:
+      - '${PORT:-3000}:3000'
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+    volumes:
+      # Mount Firebase service account JSON for multi-workspace OAuth installs.
+      # Create secrets/firebase-service-account.json before starting (see .env.sample).
+      - ${FIREBASE_CREDENTIALS_PATH:-./secrets/firebase-service-account.json}:/run/secrets/firebase.json:ro
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:3000/health').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 5s
+      start_period: 15s
+      retries: 3
