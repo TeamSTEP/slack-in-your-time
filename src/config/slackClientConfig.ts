@@ -2,18 +2,17 @@ import botPermissionScope from './token-scope.json';
 import type { AppOptions } from '@slack/bolt';
 import { LogLevel } from '@slack/bolt';
 import { healthRoute } from '../routes/health';
+import type { Env } from './env';
 
-// if process.env.SLACK_BOT_TOKEN is undefined, the client will run in authentication installation mode
-//todo: token and scopes must be set by the user installing this app
-const clientConfig = {
-    socketMode: false,
-    clientId: process.env.SLACK_CLIENT_ID,
-    signingSecret: process.env.SLACK_SIGNING_SECRET,
-    clientSecret: process.env.SLACK_CLIENT_SECRET,
-    token: process.env.SLACK_BOT_TOKEN,
-    scopes: botPermissionScope,
-    logLevel: process.env.NODE_ENV === 'development' ? LogLevel.DEBUG : LogLevel.INFO,
-    customRoutes: [healthRoute],
-} as AppOptions;
-
-export default clientConfig;
+export const createSlackClientConfig = (env: Env): AppOptions => {
+    return {
+        socketMode: false,
+        clientId: env.SLACK_CLIENT_ID,
+        signingSecret: env.SLACK_SIGNING_SECRET,
+        clientSecret: env.SLACK_CLIENT_SECRET,
+        token: env.SLACK_BOT_TOKEN,
+        scopes: botPermissionScope,
+        logLevel: env.NODE_ENV === 'development' ? LogLevel.DEBUG : LogLevel.INFO,
+        customRoutes: [healthRoute],
+    };
+};

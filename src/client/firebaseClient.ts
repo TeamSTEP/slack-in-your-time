@@ -1,37 +1,29 @@
 import * as admin from 'firebase-admin';
 import type { Firestore } from '@google-cloud/firestore';
+import type { Env } from '../config/env';
+import type { Logger } from '../config/logger';
 
-type FirebaseAdmin = typeof admin;
-
-// firebase project ID
-const PROJ_ID = 'slack-in-your-time';
-const DB_URL = `https://${PROJ_ID}.firebaseio.com`;
-
-// note: this can be re-assigned outside of the code. It's better to create a wrapper class for member protection
-export let firestoreDb: Firestore | undefined;
-export let firebaseAdmin: FirebaseAdmin | undefined;
-
-export const initializeFirebase = () => {
-    // check if it's already initialized or not
-    if (!firestoreDb) {
-        // initialize firebase in order to access its services
-        // note: the env var for `GOOGLE_APPLICATION_CREDENTIALS` must be set (see: https://firebase.google.com/docs/admin/setup#initialize-sdk)
-        const firebaseApp = admin.initializeApp({
-            credential: admin.credential.applicationDefault(),
-            databaseURL: DB_URL,
-        });
-
-        // initialize the database and collections
-        const db = firebaseApp.firestore();
-
-        // database settings
-        db.settings({ ignoreUndefinedProperties: true });
-
-        firestoreDb = db;
-        firebaseAdmin = admin;
-
-        return { admin, db };
-    } else {
-        return { admin: firebaseAdmin, db: firestoreDb };
+export const createFirebase = (env: Env, logger: Logger): Firestore | null => {
+    if (env.SLACK_BOT_TOKEN) {
+        logger.info('Single-workspace mode enabled; skipping Firebase initialization');
+        return null;
     }
+
+    if (!env.GOOGLE_APPLICATION_CREDENTIALS) {
+        throw new Error('GOOGLE_APPLICATION_CREDENTIALS is required for multi-workspace OAuth mode');
+    }
+
+    const dbUrl = `https://${env.FIREBASE_PROJECT_ID}.firebaseio.com`;
+
+    const firebaseApp = admin.initializeApp({
+        credential: admin.credential.applicationDefault(),
+        databaseURL: dbUrl,
+    });
+
+    const db = firebaseApp.firestore();
+    db.settings({ ignoreUndefinedProperties: true });
+
+    logger.info({ projectId: env.FIREBASE_PROJECT_ID }, 'Firebase initialized');
+
+    return db;
 };

@@ -8,6 +8,7 @@ import {
 import { EventContext } from '../model';
 import * as Helpers from '../helper';
 import * as Views from '../view';
+import { getLogger } from '../config';
 import _ from 'lodash';
 
 /**
@@ -47,7 +48,7 @@ export const promptMsgDateConvert: Middleware<SlackEventMiddlewareArgs<'message'
             });
         }
     } catch (err) {
-        console.log((err as Error).message);
+        getLogger().warn({ err, channel: body.event.channel }, 'Failed to prompt timezone conversion');
     }
 };
 
@@ -98,7 +99,7 @@ export const convertTimeInChannel: Middleware<SlackActionMiddlewareArgs<BlockAct
             blocks: messageContent,
         });
     } catch (err) {
-        console.error(err);
+        getLogger().error({ err }, 'Failed to convert timezone message');
         await respond({ text: `*[Error]* ${(err as Error).message}`, replace_original: true });
     }
 };
