@@ -1,2 +1,2 @@
-export * from './slackClientInit';
-export * from './firebaseClient';
+export { createFirebase } from './firebaseClient';
+export { createSlackApp } from './slackClientInit';

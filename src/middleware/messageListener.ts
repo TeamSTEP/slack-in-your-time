@@ -1,6 +1,7 @@
 import { Middleware, SlackEventMiddlewareArgs } from '@slack/bolt';
 import { Users, EventContext } from '../model';
 import * as Helpers from '../helper';
+import { getLogger } from '../config';
 
 /**
  * Listener middleware that filters out messages with the `bot_message` subtype.
@@ -51,7 +52,7 @@ export const messageHasTimeRef: Middleware<SlackEventMiddlewareArgs<'message'>> 
 
         next && (await next());
     } catch (err) {
-        console.log((err as Error).message);
+        getLogger().debug({ err, eventId: body.event_id }, 'Skipping message event');
     }
 };
 
