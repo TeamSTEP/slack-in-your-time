@@ -1,26 +1,26 @@
 # syntax=docker/dockerfile:1
 
-FROM node:16-alpine AS builder
+FROM node:22-alpine AS builder
 
 WORKDIR /usr/src/app
-COPY ["package.json", "yarn.lock", "./"]
+COPY package.json yarn.lock ./
 RUN yarn install --frozen-lockfile
-COPY tsconfig*.json ./
+COPY tsconfig.json ./
 COPY src src
-RUN npm install -g typescript && yarn build
+RUN yarn build
 
-FROM node:16-alpine
+FROM node:22-alpine
 
 ENV NODE_ENV=production
 RUN apk add --no-cache tini
 WORKDIR /usr/src/app
 RUN chown node:node .
 USER node
-COPY package.json ./
-RUN yarn install
+COPY package.json yarn.lock ./
+RUN yarn install --frozen-lockfile --production
 COPY --from=builder /usr/src/app/dist/ dist/
-# there is an issue with handling environment variables and credientials
-#COPY .data .data
 
 EXPOSE 3000
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD node -e "fetch('http://127.0.0.1:3000/health').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 CMD ["/sbin/tini", "--", "yarn", "start"]
