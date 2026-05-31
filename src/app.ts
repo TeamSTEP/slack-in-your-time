@@ -42,4 +42,6 @@ const registerEventHandlers = (slackBoltApp: App) => {
     });
 
     slackBoltApp.action({ action_id: 'set_conversion_visibility' }, Controllers.updateConversionVisibility);
+
+    slackBoltApp.action({ action_id: 'set_auto_convert' }, Controllers.updateAutoConvert);
 };

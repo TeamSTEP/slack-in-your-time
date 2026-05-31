@@ -18,19 +18,64 @@ Until everyone is used to using Unix epoch time, we'll have to do something abou
 
 That is why we decided to make this Slack app.
 
-## Feature
+## Features
 
 ![bot-test-img](https://user-images.githubusercontent.com/40356749/124895038-3ab33b80-dfed-11eb-998c-612f3b882c42.jpg)
 
-This application is powered by the wonderful library for NLP date parsing that is [chrono](https://github.com/wanasit/chrono) and [bolt-js](https://github.com/SlackAPI/bolt-js).
+This application is powered by [chrono](https://github.com/wanasit/chrono) for natural-language date parsing and [bolt-js](https://github.com/SlackAPI/bolt-js) for Slack integration.
 
-Once you install this app to your Slack channel, it will listen to all text messages that references time.
-If your channel member has more than one time zone, this app will ask you if you would like to convert the time from your local time zone to all the member's time zone.
+Once installed, the bot listens for time references in channel messages and helps convert them across members' timezones.
 
-Right now this is done automatically for everyone, but we are planning on adding configurable behaviors like the ability to choose between public messages or messages only visible to the respective members.
+### Automatic channel detection
+
+When someone posts a message containing a time reference, the bot prompts the sender to convert it — unless auto-convert is enabled in workspace settings.
+
+### Direct conversion
+
+- **App mention**: `@Slack In Your Time meeting at 3pm EST`
+- **Slash command**: `/convert 3pm tomorrow`
+
+### In-text timezone override
+
+Include an IANA label (`America/New_York`) or abbreviation (`EST`, `JST`) in your message to parse the time in that zone instead of your Slack profile timezone.
+
+### Configurable delivery
+
+Workspace admins can configure how conversions are delivered (App Home tab):
+
+| Mode | Behavior |
+|------|----------|
+| **Public** | Post converted times in the channel |
+| **Ephemeral** | Only the person who triggered the conversion sees it |
+| **Per member** | Each channel member receives a private message with their local time |
+
+Auto-convert can also be toggled to skip the confirmation prompt on channel messages.
+
+## Self-hosting
+
+```bash
+cp .env.sample .env
+# Fill in Slack credentials; for multi-workspace OAuth, add Firebase credentials to secrets/
+
+docker compose up -d --build
+```
+
+See `.env.sample` for all configuration options including `CONVERSION_MESSAGE_VISIBILITY` and `AUTO_CONVERT` for single-workspace deployments.
+
+## Development
+
+```bash
+yarn install
+yarn dev
+yarn test
+yarn build
+```
+
+Requires Node 22+.
 
 ## Future Plans
 
 - [x] Add in-text timezone overriding
 - [x] Add direct time conversion via App Mentioning or Slash Commands
 - [x] Add configurable messaging
+- [x] Per-member private delivery and member-aware conversion output

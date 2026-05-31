@@ -15,12 +15,27 @@ export const appHomeBlock = (props: HomeBlockProps) => {
 
     const visibilityOptions = [
         {
-            text: { type: 'plain_text' as const, text: 'Public — post conversions in the channel' },
+            text: { type: 'plain_text' as const, text: 'Public — post in channel' },
             value: 'public',
         },
         {
-            text: { type: 'plain_text' as const, text: 'Ephemeral — only visible to the person who triggered it' },
+            text: { type: 'plain_text' as const, text: 'Ephemeral — only the triggerer sees it' },
             value: 'ephemeral',
+        },
+        {
+            text: { type: 'plain_text' as const, text: 'Per member — each person gets their local time privately' },
+            value: 'per_member',
+        },
+    ];
+
+    const autoConvertOptions = [
+        {
+            text: { type: 'plain_text' as const, text: 'Ask before converting' },
+            value: 'false',
+        },
+        {
+            text: { type: 'plain_text' as const, text: 'Convert automatically' },
+            value: 'true',
         },
     ];
 
@@ -33,7 +48,15 @@ export const appHomeBlock = (props: HomeBlockProps) => {
                   type: 'section' as const,
                   text: {
                       type: 'mrkdwn' as const,
-                      text: '*Workspace settings*\nChoose how converted times are posted after confirmation or direct conversion.',
+                      text: '*Workspace settings*\nControl how time conversions are delivered in channels.',
+                  },
+              },
+              {
+                  type: 'section' as const,
+                  block_id: 'conversion_visibility',
+                  text: {
+                      type: 'mrkdwn' as const,
+                      text: '*Conversion visibility*',
                   },
                   accessory: {
                       type: 'static_select' as const,
@@ -48,6 +71,26 @@ export const appHomeBlock = (props: HomeBlockProps) => {
                       options: visibilityOptions,
                   },
               },
+              {
+                  type: 'section' as const,
+                  block_id: 'auto_convert',
+                  text: {
+                      type: 'mrkdwn' as const,
+                      text: '*Channel messages*\nWhen someone mentions a time, should the bot convert immediately or ask first?',
+                  },
+                  accessory: {
+                      type: 'static_select' as const,
+                      action_id: 'set_auto_convert',
+                      placeholder: {
+                          type: 'plain_text' as const,
+                          text: 'Auto-convert behavior',
+                      },
+                      initial_option: autoConvertOptions.find(
+                          (option) => option.value === String(props.settings.autoConvert),
+                      ),
+                      options: autoConvertOptions,
+                  },
+              },
           ]
         : [
               {
@@ -55,7 +98,7 @@ export const appHomeBlock = (props: HomeBlockProps) => {
                   elements: [
                       {
                           type: 'mrkdwn' as const,
-                          text: `Conversion messages are set to *${props.settings.conversionVisibility}* via server configuration.`,
+                          text: `Settings: visibility *${props.settings.conversionVisibility}*, auto-convert *${props.settings.autoConvert ? 'on' : 'off'}* (via server configuration).`,
                       },
                   ],
               },

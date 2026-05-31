@@ -10,17 +10,17 @@ import * as Helpers from '../helper';
 import * as Views from '../view';
 import { getLogger } from '../config';
 import { getWorkspaceSettings } from '../service/workspaceSettings';
-import _ from 'lodash';
+import { deliverConversion, prepareChannelConversion } from '../service/conversionDelivery';
 
 /**
  * Send a ephemeral message to the message sender to ask them if they want to convert their time.
- * The message block confirmation button contains the object for both the list channel members
- * and the message sender's time context.
+ * When auto-convert is enabled, performs conversion immediately without prompting.
  */
 export const promptMsgDateConvert: Middleware<SlackEventMiddlewareArgs<'message'>> = async ({
     context,
     body,
     client,
+    say,
 }) => {
     try {
         if (!context.message) throw new Error('Message context was not found');
@@ -29,25 +29,40 @@ export const promptMsgDateConvert: Middleware<SlackEventMiddlewareArgs<'message'
 
         const msgWithTime = context.message as EventContext.MessageTimeContext;
         const currentChannel = body.event.channel;
+        const teamId = context.teamId ?? body.team_id ?? '';
 
         const channelMembers = await Helpers.getConversationMembers(client, currentChannel, context.botToken);
+        const settings = await getWorkspaceSettings(teamId);
 
-        const channelTimezones = _.filter(
-            Helpers.getUserTimeZones(channelMembers),
-            (timezone) => timezone !== msgWithTime.content[0].tz,
-        );
+        const prepared = prepareChannelConversion(msgWithTime, channelMembers);
+        if (!prepared) return;
 
-        if (channelMembers.length > 0 && channelTimezones.length > 0) {
-            const confirmationForm = Views.userConfirmationMsgBox(msgWithTime, channelTimezones);
-
-            await Helpers.sendEphemeralMessage(client, {
-                text: 'confirmation message',
-                blocks: confirmationForm,
+        if (settings.autoConvert) {
+            await deliverConversion(settings.conversionVisibility, {
+                client,
                 channel: currentChannel,
-                user: msgWithTime.senderId,
+                triggerUserId: msgWithTime.senderId,
                 token: context.botToken,
+                timeContext: msgWithTime,
+                members: channelMembers,
+                sourceTimezone: prepared.sourceTimezone,
+                groups: prepared.groups,
+                blocks: prepared.blocks,
+                say,
             });
+            return;
         }
+
+        const channelTimezones = Helpers.uniqueChannelTimezones(prepared.groups);
+        const confirmationForm = Views.userConfirmationMsgBox(msgWithTime, channelTimezones);
+
+        await Helpers.sendEphemeralMessage(client, {
+            text: 'confirmation message',
+            blocks: confirmationForm,
+            channel: currentChannel,
+            user: msgWithTime.senderId,
+            token: context.botToken,
+        });
     } catch (err) {
         getLogger().warn({ err, channel: body.event.channel }, 'Failed to prompt timezone conversion');
     }
@@ -69,39 +84,38 @@ export const convertTimeInChannel: Middleware<SlackActionMiddlewareArgs<BlockAct
     try {
         const actionPayload = body.actions.find((i) => i.action_id === action)?.value;
         if (!actionPayload) throw new Error('could not find any data for action ' + action);
+        if (!context.botToken) throw new Error('No bot token was found');
 
         const actionData = JSON.parse(actionPayload) as {
             timeContext: EventContext.MessageTimeContext;
             payload: string[];
         };
 
-        const senderTimezone = Helpers.assertValidTimezone(actionData.timeContext.content[0].tz);
-        const convertedTimes = Helpers.convertTimeAcrossChannel(actionData.timeContext, actionData.payload);
-        const messageContent = Views.convertedTimesBlock(senderTimezone, convertedTimes);
+        const channelMembers = await Helpers.getConversationMembers(
+            client,
+            actionData.timeContext.sentChannel,
+            context.botToken,
+        );
 
-        await respond({
-            delete_original: true,
-        });
+        const prepared = prepareChannelConversion(actionData.timeContext, channelMembers);
+        if (!prepared) throw new Error('No timezone conversions available for this channel');
+
+        await respond({ delete_original: true });
 
         const teamId = context.teamId ?? body.team?.id ?? '';
         const settings = await getWorkspaceSettings(teamId);
-        const channel = actionData.timeContext.sentChannel;
-        const userId = actionData.timeContext.senderId;
 
-        if (settings.conversionVisibility === 'ephemeral') {
-            await Helpers.sendEphemeralMessage(client, {
-                text: 'time conversion message',
-                blocks: messageContent,
-                channel,
-                user: userId,
-                token: context.botToken,
-            });
-            return;
-        }
-
-        await say({
-            text: 'time conversion message',
-            blocks: messageContent,
+        await deliverConversion(settings.conversionVisibility, {
+            client,
+            channel: actionData.timeContext.sentChannel,
+            triggerUserId: actionData.timeContext.senderId,
+            token: context.botToken,
+            timeContext: actionData.timeContext,
+            members: channelMembers,
+            sourceTimezone: prepared.sourceTimezone,
+            groups: prepared.groups,
+            blocks: prepared.blocks,
+            say,
         });
     } catch (err) {
         getLogger().error({ err }, 'Failed to convert timezone message');

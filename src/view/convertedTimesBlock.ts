@@ -1,34 +1,29 @@
-import { EventContext } from '../model';
-import _ from 'lodash';
+import { EventContext, Users } from '../model';
 import { dateToUl } from '../helper';
+import { memberMention, type TimezoneMemberGroup } from '../helper/memberTimezones';
 
-/**
- * Converts the time information into a formatted markdown section block for Slack.
- * @param timezone the timezone label to display
- * @param localTime list of dates to display
- */
-const dateSectionBlock = (timezone: string, localTime: EventContext.DateReference[]) => {
-    const timeUlMd = _.map(localTime, (i) => dateToUl(i));
+const groupSectionBlock = (group: TimezoneMemberGroup) => {
+    const memberList = group.members.map((member) => memberMention(member)).join(', ');
+    const timeList = group.times.map((entry) => dateToUl(entry)).join('');
+
     return {
         type: 'section',
         text: {
             type: 'mrkdwn',
-            text: `*${timezone}*${timeUlMd}`,
+            text: `*${group.timezone}* (${memberList})${timeList}`,
         },
     };
 };
 
-export const convertedTimesBlock = (sourceTimezone: string, localTimes: EventContext.DateReference[][]) => {
-    const convertedBlocks = _.map(localTimes, (entries) => {
-        return dateSectionBlock(entries[0].tz, entries);
-    });
+export const convertedTimesBlock = (sourceTimezone: string, groups: TimezoneMemberGroup[]) => {
+    const convertedBlocks = groups.map((group) => groupSectionBlock(group));
 
-    const messageBlock = [
+    return [
         {
             type: 'section',
             text: {
                 type: 'mrkdwn',
-                text: `Converted time from ${sourceTimezone}`,
+                text: `Converted time from *${sourceTimezone}*`,
             },
         },
         ...convertedBlocks,
@@ -37,10 +32,35 @@ export const convertedTimesBlock = (sourceTimezone: string, localTimes: EventCon
             elements: [
                 {
                     type: 'mrkdwn',
-                    text: 'Found an issue? Please consider opening a bug report from the *App Home*!',
+                    text: 'Found an issue? Please open a bug report from the *App Home*!',
                 },
             ],
         },
     ];
-    return messageBlock;
+};
+
+export const personalConversionBlock = (
+    timeContext: EventContext.MessageTimeContext,
+    member: Users.User,
+    times: EventContext.DateReference[],
+) => {
+    const timeList = times.map((entry) => dateToUl(entry)).join('');
+    const sourceMsg = timeContext.content[0]?.sourceMsg ?? 'a time reference';
+
+    return [
+        {
+            type: 'section',
+            text: {
+                type: 'mrkdwn',
+                text: `Hi ${memberMention(member)}! Someone shared a time in this channel:\n>${sourceMsg}`,
+            },
+        },
+        {
+            type: 'section',
+            text: {
+                type: 'mrkdwn',
+                text: `*Your local time* (${times[0]?.tz ?? 'unknown'}):${timeList}`,
+            },
+        },
+    ];
 };
