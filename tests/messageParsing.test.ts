@@ -1,12 +1,24 @@
 import { detectTimezoneInText } from '../src/helper/detectTimezoneInText';
 import * as Helpers from '../src/helper';
 import { DateTime } from 'luxon';
+import { Users } from '../src/model';
 
 const DATE_FORMAT = 'yyyy-MM-dd hh:mm a';
 
 const formatDateString = (date: Date, zone: string) => {
     return DateTime.fromJSDate(date, { zone }).toFormat(DATE_FORMAT);
 };
+
+const mockUser = (id: string, tz: string): Users.User =>
+    ({
+        id,
+        tz,
+        name: id,
+        real_name: id,
+        profile: { display_name: id },
+        is_bot: false,
+        deleted: false,
+    }) as Users.User;
 
 beforeAll(() => {
     process.env.SLACK_SIGNING_SECRET = 'my-test-secret';
@@ -95,6 +107,56 @@ describe('getUserTimeZones', () => {
         ]);
 
         expect(timezones).toEqual(['Asia/Tokyo', 'America/New_York']);
+    });
+});
+
+describe('member timezone grouping', () => {
+    it('should group channel members by timezone and exclude the source zone', () => {
+        const members = [
+            mockUser('U1', 'America/New_York'),
+            mockUser('U2', 'Asia/Tokyo'),
+            mockUser('U3', 'Asia/Tokyo'),
+        ];
+
+        const timeContext = {
+            senderId: 'U1',
+            sentChannel: 'C1',
+            sentTime: 0,
+            content: [
+                {
+                    sourceMsg: '3pm',
+                    start: new Date('2021-05-02T19:00:00.000Z'),
+                    tz: 'America/New_York',
+                },
+            ],
+        };
+
+        const groups = Helpers.buildConversionGroups(timeContext, members);
+
+        expect(groups).toHaveLength(1);
+        expect(groups[0].timezone).toEqual('Asia/Tokyo');
+        expect(groups[0].members).toHaveLength(2);
+    });
+
+    it('should identify personal conversion times for members in other zones', () => {
+        const member = mockUser('U2', 'Asia/Tokyo');
+        const timeContext = {
+            senderId: 'U1',
+            sentChannel: 'C1',
+            sentTime: 0,
+            content: [
+                {
+                    sourceMsg: '3pm EST',
+                    start: new Date('2021-05-02T19:00:00.000Z'),
+                    tz: 'America/New_York',
+                },
+            ],
+        };
+
+        const times = Helpers.getMemberConversionTimes(timeContext, member);
+
+        expect(times).not.toBeNull();
+        expect(times?.[0].tz).toEqual('Asia/Tokyo');
     });
 });
 

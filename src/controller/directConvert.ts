@@ -1,41 +1,21 @@
 import { Middleware, SlackEventMiddlewareArgs, SlackCommandMiddlewareArgs } from '@slack/bolt';
 import * as Helpers from '../helper';
-import * as Views from '../view';
 import { getLogger } from '../config';
 import { getWorkspaceSettings } from '../service/workspaceSettings';
-import _ from 'lodash';
-
-type SlackBlocks = ReturnType<typeof Views.convertedTimesBlock>;
-type SlackClient = Parameters<typeof Helpers.getConversationMembers>[0];
+import { deliverConversion, prepareChannelConversion } from '../service/conversionDelivery';
 
 const stripBotMention = (text: string): string => {
     return text.replace(/<@[A-Z0-9]+>/g, '').trim();
 };
 
-const postConversionResult = async (
-    visibility: 'public' | 'ephemeral',
-    args: {
-        client: SlackClient;
-        channel: string;
-        userId: string;
-        token: string;
-        blocks: SlackBlocks;
-        say: (message: { text: string; blocks: SlackBlocks }) => Promise<unknown>;
-    },
+const noConversionMessage = async (
+    client: Helpers.SlackWebClient,
+    channel: string,
+    userId: string,
+    token: string,
+    text: string,
 ): Promise<void> => {
-    const message = { text: 'time conversion message', blocks: args.blocks };
-
-    if (visibility === 'ephemeral') {
-        await Helpers.sendEphemeralMessage(args.client, {
-            ...message,
-            channel: args.channel,
-            user: args.userId,
-            token: args.token,
-        });
-        return;
-    }
-
-    await args.say(message);
+    await Helpers.sendEphemeralMessage(client, { text, channel, user: userId, token });
 };
 
 /**
@@ -67,42 +47,43 @@ export const handleAppMention: Middleware<SlackEventMiddlewareArgs<'app_mention'
         );
 
         if (!timeContext) {
-            await Helpers.sendEphemeralMessage(client, {
-                text: 'I could not find a time reference in your message. Try something like "meeting at 3pm tomorrow".',
-                channel: channelId,
-                user: userId,
+            await noConversionMessage(
+                client,
+                channelId,
+                userId,
                 token,
-            });
+                'I could not find a time reference in your message. Try something like "meeting at 3pm tomorrow".',
+            );
             return;
         }
 
         const channelMembers = await Helpers.getConversationMembers(client, channelId, token);
-        const channelTimezones = _.filter(
-            Helpers.getUserTimeZones(channelMembers),
-            (timezone) => timezone !== timeContext.content[0].tz,
-        );
+        const prepared = prepareChannelConversion(timeContext, channelMembers);
 
-        if (channelTimezones.length === 0) {
-            await Helpers.sendEphemeralMessage(client, {
-                text: 'Everyone in this channel appears to share the same timezone.',
-                channel: channelId,
-                user: userId,
+        if (!prepared) {
+            await noConversionMessage(
+                client,
+                channelId,
+                userId,
                 token,
-            });
+                'Everyone in this channel appears to share the same timezone.',
+            );
             return;
         }
 
-        const convertedTimes = Helpers.convertTimeAcrossChannel(timeContext, channelTimezones);
-        const blocks = Views.convertedTimesBlock(timeContext.content[0].tz, convertedTimes);
         const teamId = context.teamId ?? '';
         const settings = await getWorkspaceSettings(teamId);
 
-        await postConversionResult(settings.conversionVisibility, {
+        await deliverConversion(settings.conversionVisibility, {
             client,
             channel: channelId,
-            userId,
+            triggerUserId: userId,
             token,
-            blocks,
+            timeContext,
+            members: channelMembers,
+            sourceTimezone: prepared.sourceTimezone,
+            groups: prepared.groups,
+            blocks: prepared.blocks,
             say,
         });
     } catch (err) {
@@ -156,12 +137,9 @@ export const handleConvertCommand: Middleware<SlackCommandMiddlewareArgs> = asyn
         }
 
         const channelMembers = await Helpers.getConversationMembers(client, command.channel_id, token);
-        const channelTimezones = _.filter(
-            Helpers.getUserTimeZones(channelMembers),
-            (timezone) => timezone !== timeContext.content[0].tz,
-        );
+        const prepared = prepareChannelConversion(timeContext, channelMembers);
 
-        if (channelTimezones.length === 0) {
+        if (!prepared) {
             await respond({
                 response_type: 'ephemeral',
                 text: 'Everyone in this channel appears to share the same timezone.',
@@ -169,26 +147,20 @@ export const handleConvertCommand: Middleware<SlackCommandMiddlewareArgs> = asyn
             return;
         }
 
-        const convertedTimes = Helpers.convertTimeAcrossChannel(timeContext, channelTimezones);
-        const blocks = Views.convertedTimesBlock(timeContext.content[0].tz, convertedTimes);
         const teamId = context.teamId ?? command.team_id;
         const settings = await getWorkspaceSettings(teamId);
 
-        if (settings.conversionVisibility === 'ephemeral') {
-            await Helpers.sendEphemeralMessage(client, {
-                text: 'time conversion message',
-                blocks,
-                channel: command.channel_id,
-                user: command.user_id,
-                token,
-            });
-            return;
-        }
-
-        await respond({
-            response_type: 'in_channel',
-            text: 'time conversion message',
-            blocks,
+        await deliverConversion(settings.conversionVisibility, {
+            client,
+            channel: command.channel_id,
+            triggerUserId: command.user_id,
+            token,
+            timeContext,
+            members: channelMembers,
+            sourceTimezone: prepared.sourceTimezone,
+            groups: prepared.groups,
+            blocks: prepared.blocks,
+            respond,
         });
     } catch (err) {
         getLogger().error({ err, channel: command.channel_id }, 'Failed to handle /convert command');

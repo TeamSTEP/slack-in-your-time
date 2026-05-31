@@ -7,3 +7,4 @@ export * from './timezone';
 export * from './detectTimezoneInText';
 export * from './convertTime';
 export * from './timeContext';
+export * from './memberTimezones';

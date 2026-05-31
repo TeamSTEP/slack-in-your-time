@@ -10,7 +10,11 @@ const envSchema = z.object({
     GOOGLE_APPLICATION_CREDENTIALS: z.string().optional(),
     FIREBASE_PROJECT_ID: z.string().default('slack-in-your-time'),
     LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).optional(),
-    CONVERSION_MESSAGE_VISIBILITY: z.enum(['public', 'ephemeral']).default('public'),
+    CONVERSION_MESSAGE_VISIBILITY: z.enum(['public', 'ephemeral', 'per_member']).default('public'),
+    AUTO_CONVERT: z
+        .enum(['true', 'false'])
+        .default('false')
+        .transform((value) => value === 'true'),
 });
 
 export type Env = z.infer<typeof envSchema>;
